@@ -1,22 +1,31 @@
-name: Build and Deploy Ng App
+name: Deploy Angular SPA to GitHub Pages # Il nome della Action
 
-on: push
+on:
+  push: 
+    branches:   
+      - master # La action verrà eseguita in caso di push sul branch master del nostro repository
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-latest # La action verrà eseguita su l'ultima versione di Ubuntu 
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-node@v1
+    - name: Checkout
+      uses: actions/checkout@v2 # Operazione di checkout standard utile per la CI
       with:
-        node-version: '12.x'
-    - run: npm install
-    - run: npm install -g @angular/cli > /dev/null
-    - run: ng build --prod --output-path=dist --base-href="https://Amantini1997.github.io/NgGrapher/"
-    - name: Publish generated content to GitHub Pages
-      uses: tsunematsu21/actions-publish-gh-pages@v1.0.1
+        persist-credentials: false
+    - name: Use Node.js 10.x
+      uses: actions/setup-node@v1 # Setup di Node utilizzando la action https://github.com/actions/setup-node
       with:
-          dir: dist
-          branch: gh-pages
-          token: ${{ secrets.ACCESS_TOKEN }}
+        node-version: '10.x' # Nel nostro caso, utilizziamo la versione 10.x di Node
+    - name: Build
+      run: | # Esecuzione dei comandi di setup e build del progetto Angular, non dimenticando il parametro --base-href nel comando di build!
+         npm install -g @angular/cli
+         npm install
+         ng build --prod --base-href="/redis-patterns-console/"
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@releases/v2 # Deploy su GitHub Pages utilizzando la action https://github.com/JamesIves/github-pages-deploy-action
+      env:
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }} # Indichiamo l'accesso token creato per essere autenticati correttamente, prelevandolo dalle Secrets
+        BASE_BRANCH: master
+        BRANCH: gh-pages # Il branch che contiene il progetto pubblicato sulle GitHub Pages
+        FOLDER: dist # Folder dove è stata eseguita la build del nostro progetto Angular
