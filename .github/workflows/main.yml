@@ -23,8 +23,9 @@ jobs:
           node-version: ${{ matrix.node-version }}  
       - name: npm install and npm run build:ci  
         run: |  
-          npm i  
-          npm run build:ci  
+          npm install
+          npm install -g @angular/cli > /dev/null
+          ng build --prod --output-path=dist --base-href="https://Amantini1997.github.io/NgGrapher/"
       - name: Push Build to Releases  
         uses: ncipollo/release-action@v1  
         with:  
