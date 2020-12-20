@@ -1,0 +1,23 @@
+#output {
+    #code-highlighter {
+        border: solid 2px purple;
+        font-family: 'Fira Code', monospace;
+        
+        & [class^="code-line"] {
+            background-color: rgb(66, 66, 66);
+            color: #fff;
+            border: solid 1px #fff;
+            height: 30px;
+            padding-left: 5px;
+            
+            &.highlight {
+                background-color: rgb(65, 156, 136);
+                color: #fff;
+            }
+        }
+    
+        & #player {
+            border: solid 2px yellow;
+        }
+    }
+}

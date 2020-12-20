@@ -1,0 +1,29 @@
+<!-- CODE  -->
+<div id="output">
+    <div id="code-highlighter">
+        <div *ngFor="let codeComment of codeED.displayable; let index=index"
+             [attr.data-comment]="codeComment.comment"
+             [attr.data-lineIndex]="index"
+             [innerHTML]="codeComment.code">
+        </div>
+    </div>
+
+    <!-- PLOTTER -->
+    <select>
+        <option value="list">List</option>
+        <option value="tree">Tree</option>
+        <option value="barplot">Bar Plot</option>
+    </select>
+</div>
+
+
+
+<div id="player">
+    <label for="highlighting-delayer"></label>
+    <input type="range" 
+           id="highlighting-delayer" 
+           name="highlighting-delayer" 
+           min="100" max="10000" (change)="updateDelay($event.target)">
+    <button id="player__btn" (click)="play()">Run</button>
+    <button id="stop__btn" (click)="stop()">Stop</button>
+</div>
