@@ -19,4 +19,4 @@ jobs:
       with:
           dir: dist
           branch: gh-pages
-          token: ${{ secrets.TOKEN_GITHUB_ACTION }}
+          token: ${{ secrets.ACCESS_TOKEN }}
