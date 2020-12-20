@@ -23,7 +23,7 @@
     <input type="range" 
            id="highlighting-delayer" 
            name="highlighting-delayer" 
-           min="100" max="10000" (change)="updateDelay(this)">
+           min="100" max="10000" (change)="updateDelay($event.target)">
     <button id="player__btn" (click)="play()">Run</button>
     <button id="stop__btn" (click)="stop()">Stop</button>
 </div>

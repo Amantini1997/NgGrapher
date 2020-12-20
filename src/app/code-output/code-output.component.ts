@@ -1,5 +1,5 @@
-import { Component, Input, SimpleChange, SimpleChanges } from '@angular/core';
-import { CodeED } from '../codeInterfaces';
+import { Component, Input } from '@angular/core';
+import { CodeED, YieldedLine } from '../codeInterfaces';
 
 @Component({
   selector: 'code-output',
@@ -21,6 +21,7 @@ export class CodeOutputComponent {
   }
   
   hiLine(line: number | JSON): void {
+    //@ts-ignore
     const lineNumber = line.line ?? line;
     const HIGHLIGHT = "highlight";
     if (this.currentLine) {
@@ -29,6 +30,7 @@ export class CodeOutputComponent {
     this.currentLine = document.querySelector(`.code-line-${lineNumber}`);
     this.currentLine.classList.add(HIGHLIGHT);  
     
+    //@ts-ignore
     const comment = line.comment || this.currentLine.dataset.comment;
     if (comment) {
         console.log(comment);
@@ -50,6 +52,7 @@ export class CodeOutputComponent {
             this.delay = 100;
         }
     }, firstIteration 
+        //@ts-ignore
         ? (firstIteration=false) & 0 
         : this.delay
     );

@@ -116,7 +116,7 @@ export class CodeInputComponent {
   }
 
   getCodeCommentLines(): CodeComment[] {
-    const lines = document.querySelectorAll("#lines-table__body .code-comment-ctn");
+    const lines = document.querySelectorAll("#lines-table__body .code-comment-ctn") as any;
     return [...lines].map(line => {
       return {
         code: this.extractLineValue(line, "code"),
@@ -154,6 +154,7 @@ export class CodeInputComponent {
   }
 
   sanitiseText = (text: string): string => {
+    //@ts-ignore
     return text.replaceAll("<", "&lt;").replaceAll(">", "&gt;")
   }
 
