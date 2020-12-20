@@ -1,0 +1,61 @@
+@import "../styles.scss";
+@import "../variables.scss";
+
+:host {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.full-width {
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    justify-content: space-around;
+    align-items: center;
+    min-height: 50px;
+    background-color: $main-color;
+    color: $main-contrast;
+}
+
+nav {
+    margin: 0;
+    width: 100vw;
+    text-align: center;
+
+    & .pages {
+        @extend .full-width;
+        @extend .flex-row;
+    
+        & > li {
+            list-style-type: none;
+            
+            & > a {
+                font-size: larger;
+                font-weight: 500;
+                position: relative;
+            }
+        }
+    }
+}
+
+footer {
+    @extend .full-width;
+}
+
+a::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 5px;
+    bottom: -5px;
+    transition: all 0.3s;
+    transform: scale(0);
+    background-color: red;
+}
+
+a:hover::before {
+    transform: scale(1.3);
+    height: 3px;
+}
