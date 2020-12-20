@@ -1,32 +1,28 @@
-on: push  
-name: Build Angular project  
-jobs:  
-  build:  
-    runs-on: ubuntu-latest  
-    strategy:  
-      matrix:  
-        node-version: [12.x]  
-  
-    steps:  
-      - uses: actions/checkout@v1  
-  
-      - name: Cache node modules  
-        uses: actions/cache@v1  
-        with:  
-          path: ~/.npm  
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}  
-          restore-keys: |  
-            ${{ runner.os }}-node-  
-      - name: Node ${{ matrix.node-version }}  
-        uses: actions/setup-node@v1  
-        with:  
-          node-version: ${{ matrix.node-version }}  
-      - name: npm install and npm run build:ci  
-        run: |  
-          npm i  
-          npm run build:ci  
-      - name: Push Build to Releases  
-        uses: ncipollo/release-action@v1  
-        with:  
-          artifacts: "dist/angular-githubaction/*"  
-          token: ${{ secrets.TOKEN_GITHUB_ACTION }}   
+# This is a basic workflow to help you get started with Actions
+
+name: Build and Deploy Ng App
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1 #this will install Node and npm on Ubuntu
+      with:
+        node-version: '12.x'
+    - run: npm install
+    - run: npm install -g @angular/cli > /dev/null
+    - run: ng build --prod --output-path=dist --base-href="https://techiediaries.github.io/angular-bootstrap-demo/"
+    - name: Publish generated content to GitHub Pages
+      uses: tsunematsu21/actions-publish-gh-pages@v1.0.1
+      with:
+          dir: dist
+          branch: gh-pages
+          token: ${{ secrets.TOKEN_GITHUB_ACTION }}
