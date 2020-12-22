@@ -10,8 +10,3 @@ export interface CodeED {
     executable: ExecutableCode,
     displayable: CodeComment[]
 }
-
-export interface YieldedLine {
-    line: number,
-    comment: string
-}

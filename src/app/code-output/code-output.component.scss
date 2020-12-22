@@ -1,23 +1,61 @@
+@import "../../variables.scss";
+@import "../../styles.scss";
+
 #output {
     #code-highlighter {
-        border: solid 2px purple;
         font-family: 'Fira Code', monospace;
         
-        & [class^="code-line"] {
-            background-color: rgb(66, 66, 66);
-            color: #fff;
-            border: solid 1px #fff;
+        & > * {
+            background-color:$gray4;
+            color: $white;
+            border: solid 1px $white;
             height: 30px;
             padding-left: 5px;
             
             &.highlight {
-                background-color: rgb(65, 156, 136);
-                color: #fff;
+                background-color: $color3;
+                color: $white;
             }
         }
-    
-        & #player {
-            border: solid 2px yellow;
+    }
+}
+
+#player { 
+    @extend .flex-row;
+    justify-content: center;
+    margin-top: 10px;
+
+    & > * {
+        @extend .flex-row;
+        @extend .flex-center;
+        $box-shadow-color: $color5;
+        background-color: $white;
+        padding: 10px;
+        width: 550px;
+        border: solid 2px $color5;
+        border-radius: 10px;
+        box-shadow: 1px 7px 20px -7px $box-shadow-color;
+        transition: all .2s;
+
+        &:hover {
+            $box-shadow-color: $color4;
         }
+    }
+
+    & #play-pause-btn > img {
+        width: 35px;
+        padding-top: 5px;
+        cursor: pointer;
+
+        &:hover {
+            filter: opacity(.8);
+        }
+    }
+
+    & #slider {
+        $padding-side: 3%;
+        width: 40%;
+        margin-left: $padding-side;
+        margin-right: $padding-side;
     }
 }

@@ -1,111 +1,44 @@
 @import "../../styles.scss";
+@import "../../variables.scss";
 
-.layout {
-    width: 100%;
-
-    & > * {
-        @extend .flex-row;
-        height: 400px;
-        & > * {
-            width: 50vw;
-        }
-    }
-}
+$max-height: 450px;
 
 :host {
-    // display: grid;
-    // grid-template-columns: minmax(100px, 30vw) 70vw;
+    @extend .flex-row;
+    max-height: $max-height;
 
-    
-
-    & > #js-code-editor {
-        height: 100%;
-        width: 100%;
-        border:1px solid black;
-        grid-area: editor;
+    & > #codeEditor {
+        width: 55vw;
     }
     
     & > #display-code {
-        border: solid 2px blue;
-        grid-area: display-code;
-        width: 100%;
+        width: 45vw;
         
         #lines-table {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            @extend .flex-col;
+            @extend .flex-center;
             width: 100%;
-            border: solid 2px black;
-            background-color: gray;
+            border: solid 2px $black;
+            background-color: $color5;
             padding: 2px;
             padding-bottom: 0;
+            max-height: $max-height;
+            overflow: hidden;
 
-            &__head {
-                @extend .flex-row;
-                justify-content: space;
-                width: 100%;
-                background-color: rgb(224, 224, 224);
-                
-                & .code-comment-ctn > * {
-                    text-align: center;
-                    font-weight: 900;
-                    font-size: large;
-                }
-            }
-            
-            &__body {
-                background-color: #fff;
-                width: 100%;
-                
-                & > .raw-line:nth-of-type(even) {
-                    background-color: rgb(219, 219, 219);
-                }
-            }
-            
             .raw-line {
                 @extend .flex-row;
                 width: 100%;
-                
-                .counter, 
-                .bin {
-                    @extend .flex-row;
-                    // justify-content: flex-end;
-                    justify-content: center;
-                    align-items: center;
-                }
 
-                .bin {
-
-                    transition: all .2s;
-
-                    & > img {
-                        cursor: pointer; 
-                        width: 15px; 
-                        height: 17px;
-                    }
-
-                    &:hover {
-                        transform: scale(1.1);
-                    }
-                }
-                
-                .counter {
+                & .counter {
                     font-weight: 700;
-                    width: 20px;
-                    padding-right: 2px;
-                    color:#fff;
-                    background-color: rgb(73, 73, 73);
-
-                    &:nth-of-type(even) {
-                        background-color: rgb(92, 92, 92);
-                    }
+                    width: 25px;
+                    color: $white;
+                    background-color: $color4;
                 }
                 
-                .code-comment-ctn {
+                & .code-comment-ctn {
                     @extend .flex-row;
-                    justify-content: space-evenly;
-                    align-items: center;
+                    @extend .flex-center;
                     width: 100%;
                     
                     & > * {
@@ -114,16 +47,71 @@
                     }
                 }
             }
+
+            &__head {
+                @extend .flex-row;
+                // justify-content: space;
+                width: 100%;
+                
+                & .raw-line > * {
+                    background-color: $color5;
+                    color: $white;
+                    text-align: center;
+                    font-weight: 600;
+                    font-size: large;
+
+                    &.head-counter {
+                        width: 25px;
+                    }
+                }
+            }
+            
+            &__body {
+                background-color: $white;
+                width: 100%;
+                overflow-y: scroll;
+
+                & > .raw-line:nth-of-type(even) {
+                    background-color: $color1;
+                }
+
+                & .raw-line {
+
+                    .counter, 
+                    .bin {
+                        @extend .flex-row;
+                        @extend .flex-center;
+                        padding: 0 2px;
+                    }
+    
+                    .bin {
+                        filter: grayscale(100%);
+                        width: 20px;
+                        transition: all .2s;
+    
+                        & > img {
+                            cursor: pointer; 
+                            width: 13px; 
+                            height: 17px;
+                        }
+    
+                        &:hover {
+                            filter: grayscale(0%);
+                        }
+                    }
+                }
+            }
+            
             
             &__btn {
+                @extend .flex-row;
+                justify-content: space-between;
                 width: 100%; 
                 padding: 10px;
+                background-color: $color5;
                 
                 & > button {
-                    border-radius: 10px;
-                    border: none;
-                    width: 100%;
-                    padding: 3px;
+                    width: 48%;
                     font-size: larger;
                 }
             }

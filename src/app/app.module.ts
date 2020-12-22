@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { AnimationPageComponent } from './animation-page/animation-page.component';
 import { InstructionsPageComponent } from './instructions-page/instructions-page.component';
 import { CodemirrorModule } from '@ctrl/ngx-codemirror';
+import { NgxSliderModule } from '@angular-slider/ngx-slider';
 
  
 
@@ -26,7 +27,8 @@ import { CodemirrorModule } from '@ctrl/ngx-codemirror';
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    CodemirrorModule
+    CodemirrorModule,
+    NgxSliderModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

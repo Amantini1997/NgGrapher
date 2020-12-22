@@ -11,6 +11,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular-slider/ngx-slider": "^2.0.3",
     "@angular/animations": "~11.0.4",
     "@angular/common": "~11.0.4",
     "@angular/compiler": "~11.0.4",
@@ -20,6 +21,7 @@
     "@angular/platform-browser-dynamic": "~11.0.4",
     "@angular/router": "~11.0.4",
     "@ctrl/ngx-codemirror": "^4.1.0",
+    "accordion-js": "^3.0.0",
     "codemirror": "^5.58.3",
     "ngx-monaco-editor": "^10.0.0-beta.1",
     "rxjs": "~6.6.0",

@@ -1,0 +1,18 @@
+@import "../../variables.scss";
+
+:host > .accordion-container {
+    padding: 0 90px;
+
+    & .ac {
+        border: none;
+    }
+
+    & .ac-trigger {
+        background-color: $color5;
+        color: $white;
+    }
+
+    & .ac-text {
+        background-color: $color1;
+    }
+}

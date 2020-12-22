@@ -2,13 +2,7 @@ import { Component } from '@angular/core';
 import { CodeED } from '../codeInterfaces';
 
 @Component({
-  template: `
-  <code-output *ngIf="config" ></code-output>
-  <ng-container>
-    <label for="input">Import Configuration</label>
-    <input id="input" type="file" (change)="loadConfiguration(this)">
-  </ng-container>
-`,
+  templateUrl: './animation-page.component.html',
   styleUrls: ['./animation-page.component.scss']
 })
 export class AnimationPageComponent {

@@ -1,0 +1,6 @@
+<h1>Welcome to the Animation Page!</h1>
+<code-output *ngIf="config; else import"></code-output>
+<div #import class="config-ctn">
+    <label for="input">Import Configuration: &nbsp;</label>
+    <input id="input" type="file" (change)="loadConfiguration(this)">
+</div>

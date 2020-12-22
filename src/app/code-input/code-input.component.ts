@@ -22,49 +22,50 @@ export class CodeInputComponent {
     lineNumbers: true,
     theme: 'material'
   };
+  readonly EDITOR_HEIGHT = "450px";
 
   code: string = `/** 
-    *  Use this space to write the logic of the program, i.e. the javascript function 
-    *  that operates the algorithm. Use the "yield" keyword to tell the program 
-    *  which line to highlight at each stage.
-    * e.g.
-    *      yield 0 
-    *  This will highlight the 0th line (remember the program uses the array notation,
-    *  so the first element is the element at position 0)
-    * 
-    *  It is possible to return dynamic comments, for example if a the comment
-    *  depends on the value of a variable. In such case use the keyword yield to return
-    *  a JSON object of the form:
-    *  yield {
-    *      line: 0,
-    *      comment: "checking if element " + x + " >= " + y
-    *  }
-    * 
-    *  Write only the body of the function, do NOT include the function head
-    *  Avoid using comments and code on the same line as this would create a parsing issue
-    *  eg.
-    *     ==== GOOD ====
-    *      //increment counter
-    *      i = i + 1
-    *     
-    *     ==== BAD ====
-    *      i = i + 1 //increment counter
-    */ 
-    
-    
-    // highlight the function call
-    yield 0
-    
-    const LINE_DYNAMIC_COMMENT = "console.log()";
-    // highlight the console.log()
-    yield {
-        line: 1, 
-        comment: "printing " + LINE_DYNAMIC_COMMENT
-    } 
-    console.log("Hello, World!");
-    
-    // highlight the end of the function
-    yield 2`;
+*  Use this space to write the logic of the program, i.e. the javascript function 
+*  that operates the algorithm. Use the "yield" keyword to tell the program 
+*  which line to highlight at each stage.
+* e.g.
+*      yield 0 
+*  This will highlight the 0th line (remember the program uses the array notation,
+*  so the first element is the element at position 0)
+* 
+*  It is possible to return dynamic comments, for example if a the comment
+*  depends on the value of a variable. In such case use the keyword yield to return
+*  a JSON object of the form:
+*  yield {
+*      line: 0,
+*      comment: "checking if element " + x + " >= " + y
+*  }
+* 
+*  Write only the body of the function, do NOT include the function head
+*  Avoid using comments and code on the same line as this would create a parsing issue
+*  eg.
+*     ==== GOOD ====
+*      //increment counter
+*      i = i + 1
+*     
+*     ==== BAD ====
+*      i = i + 1 //increment counter
+*/ 
+
+
+// highlight the function call
+yield 0
+
+const LINE_DYNAMIC_COMMENT = "console.log()";
+// highlight the console.log()
+yield {
+    line: 1, 
+    comment: "printing " + LINE_DYNAMIC_COMMENT
+} 
+console.log("Hello, World!");
+
+// highlight the end of the function
+yield 2`;
 
 
   lines: CodeComment[] = [];
@@ -89,6 +90,17 @@ export class CodeInputComponent {
         comment: ''
       },
     ];
+
+    const EMPTY_LINES = 15;
+    Array(EMPTY_LINES).fill(0).forEach(_ => this.lines.push({
+      code: '', 
+      comment: ''
+    }));
+  }
+
+  // Correctly set the size of the code editor
+  ngAfterViewInit(): void {
+    this.codeEditor.codeMirror.setSize(null, this.EDITOR_HEIGHT);
   }
 
   deleteCodeCommentLine(lineIndex: number): void {

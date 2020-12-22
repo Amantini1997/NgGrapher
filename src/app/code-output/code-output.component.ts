@@ -1,5 +1,7 @@
+import { Options } from '@angular-slider/ngx-slider';
 import { Component, Input } from '@angular/core';
-import { CodeED, YieldedLine } from '../codeInterfaces';
+import { CodeED } from '../codeInterfaces';
+import * as iGrapher from '../grapher';
 
 @Component({
   selector: 'code-output',
@@ -9,15 +11,27 @@ import { CodeED, YieldedLine } from '../codeInterfaces';
 export class CodeOutputComponent {
 
   readonly GeneratorFunction = Object.getPrototypeOf(function*(){}).constructor;
+  
   currentLine: HTMLElement;
   delay: number;
   animationIsPaused: boolean;
+  value: number = 550;
+  options: Options = {
+    floor: 100,
+    ceil: 999
+  };
+  userInput: string[];
+  grapher: iGrapher.Grapher;
 
   @Input() codeED: CodeED;
-  constructor() { }
+  constructor() { 
+    this.animationIsPaused = true;
+    this.grapher = new iGrapher.Sorter();
+    this.grapher.finalise();
+  }
 
   generateJsFunctionFromCode(): Generator {
-    return new this.GeneratorFunction(this.codeED)();
+    return new this.GeneratorFunction(this.codeED)(this.userInput, this.grapher);
   }
   
   hiLine(line: number | JSON): void {
@@ -59,34 +73,11 @@ export class CodeOutputComponent {
   }
 
   updateDelay(delaySlide: HTMLInputElement): void {
+    console.log(delaySlide)
     this.delay = +delaySlide.value;
   }
 
-  play(): void {
-    this.animationIsPaused = false;
+  togglePause(): void {
+    this.animationIsPaused = !this.animationIsPaused;
   }
-
-  stop(): void {
-    this.animationIsPaused = true;
-  }
-
-  // generateCode() {
-  //   const rawLines = getRawLines()
-  //   const codeContainer = document.getElementById("code-highlighter")
-  //   codeContainer.innerHTML = ""
-  //   rawLines.forEach((line, index) => {
-  //       const codeNode = line.querySelector(".line-code")
-  //       const code = (codeNode.innerHTML === codeNode.dataset.placeholder) ? "" : codeNode.innerHTML
-  //       const commentNode = line.querySelector(".line-comment")
-  //       const comment = (commentNode.innerHTML === commentNode.dataset.placeholder) ? "" : commentNode.innerHTML
-  //       if (code) {
-  //           const codeLine = document.createElement("div")
-  //           codeLine.classList.add(`code-line-${index}`)
-  //           codeLine.innerHTML = code
-  //           codeLine.dataset.comment = comment
-  //           codeContainer.appendChild(codeLine)  
-  //       }              
-  //   })
-  // }
-
 }
