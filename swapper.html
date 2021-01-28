@@ -1,0 +1,170 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        
+        .fixed-ctn {
+            content: "";
+            width: 1500px;
+            height: 600px;
+            border: solid 2px black;
+            overflow: hidden;
+            --scale: 2.0;
+            --origin: 0% 0% 0px;
+        }
+
+        .node-ctn {
+            background-color: var(--bg);
+            height: 100%;
+            width: 100%;
+            margin: auto;
+            --drag-top: 0px;
+            --drag-left: 0px;
+            display: grid;
+        }
+
+        .node {
+            width: 200px;
+            height: 200px;
+            border: solid 1px black;
+            border-radius: 50%;
+            transition: all .3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: calc(var(--top) + var(--drag-top));
+            left: calc(var(--left) + var(--drag-left));
+            transform: scale(var(--scale));
+            transform-origin: var(--origin);
+        }
+    </style>
+</head>
+<body>
+    <div class="fixed-ctn" onmousewheel="showVal(event)" 
+        onmousedown="setDragging(true)"
+        onmousemove="updateMouseLocation(event)" 
+        ondrag="shiftGraph(event)"
+        onmouseup="setDragging(false)"
+        draggable="true">
+        <div class="node-ctn">
+            <div class="node" style="--left: 10px; --top: 10px">node 1</div>
+            <div class="node" style="--left: 10px; --top: 100px">node 2</div>
+        </div>
+    </div>
+    <button onclick="swap()">SWAP</button>
+    <script>
+        let dragging = false;
+        let lastX, lastY, lastXShift, lastYShift;
+        var deltaX = 0;
+        var deltaY = 0;
+        let container;
+        
+        (function init() {this.container = document.querySelector(".node-ctn")})()
+
+        function swap() {
+            const nodes = [...document.querySelectorAll(".node")];
+            swapProperty(...nodes, "--left");
+            swapProperty(...nodes, "--top");
+        }
+
+        function swapProperty(element1, element2, property) {
+            const propertyElement1 = getComputedStyle(element1).getPropertyValue(property);
+            const propertyElement2 = getComputedStyle(element2).getPropertyValue(property);
+            console.log("el", element1)
+            element1.style.setProperty(property, propertyElement2);
+            element2.style.setProperty(property, propertyElement1);
+        }
+
+        var scale = 1
+
+        function setZoom(origin, container) {
+            const [x, y] = origin.map(coord => coord * scale);
+            const scaleTransformation = "scale(" + scale + ")",
+                  originTransformation = `${x}% ${y}%`;
+            console.log("container", container);
+            container.style.setProperty("--scale", scaleTransformation);
+            container.style.setProperty("--origin", originTransformation);
+            container.style.setProperty("width", scale + "rem");
+        }
+
+        //setZoom(5,document.getElementsByClassName('container')[0]);
+
+        function showVal(event) {
+            event.preventDefault();
+            // console.table(event)
+            const nodeContainer = document.querySelector(".node-ctn");
+            const origin = getOrigin(event, nodeContainer);
+            if (!origin) {
+                console.log("TOO MUCH OFFSET");
+                return;
+            }
+            const updated = updateScale(event);
+            if (!updated) {
+                console.log("CANNOT SCALE ANYMORE")
+            }
+            setZoom(origin, nodeContainer);
+        }
+
+        function getZoomDirection({wheelDelta}) {
+            return wheelDelta > 0 ? 1 : -1;
+        }
+
+        function updateScale({wheelDelta}) {
+            const changingFactor = getZoomDirection({wheelDelta}) * 0.1;
+            if (scale + changingFactor < 0.01) return false; 
+            scale += changingFactor;
+            return true;
+        }
+
+        function getOrigin(event, container) {
+            // it breaks at some point
+            container = document.querySelector(".node-ctn");
+            const bounds = container.getBoundingClientRect();
+            let x = (event.clientX - bounds.left) * .5;
+            let y = (event.clientY - bounds.top) * .25;
+            if (isNaN(x) || isNaN(y)) return false;
+            return [x, y];
+        }
+
+        function shiftGraph(event) {
+            const deltaX = event.clientX - this.lastX;
+            const deltaY = event.clientY - this.lastY;
+            updatePropertyInPx(this.container, "--drag-left", deltaX, this.lastX);
+            this.lastXShift = deltaX;
+            updatePropertyInPx(this.container, "--drag-top", deltaY, this.lastY);
+            this.lastYShift = deltaY;
+        }
+
+        function updatePropertyInPx(element, property, delta) {
+            // const oldValue = +getComputedStyle(element).getPropertyValue(property).slice(0, -2);
+            element.style.setProperty(property, delta + "px");
+        }
+
+        function updateMouseLocation(event) {
+            event.preventDefault();
+            if (this.dragging) {
+                this.deltaX += event.movementX;
+                this.deltaY += event.movementY;
+                const nodes = [...document.querySelectorAll(".node")];
+                nodes.forEach(node => {
+                    node.style.marginTop += event.movementY;
+                    node.style.marginLeft += event.movementX;
+                });
+                // updatePropertyInPx(this.container, "--drag-left", deltaX);
+                // updatePropertyInPx(this.container, "--drag-top", deltaY);
+                // const rect = divOverlay.getBoundingClientRect();
+                // divOverlay.style.left = rect.x + deltaX + 'px';
+                // divOverlay.style.top  = rect.x + deltaX + 'px';
+            }
+        }
+
+        function setDragging(isDragging) {
+            this.dragging = isDragging;
+        }
+    </script>
+</body>
+</html>
+

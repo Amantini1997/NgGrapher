@@ -1,50 +1,73 @@
-<!-- Code to be disaplyed -->
-<div id="display-code">
-    <div id="lines-table">
-        
-        <div id="lines-table__head">
-            <div class="raw-line">
-                <div class="head-counter">#</div>
-                <div class="code-comment-ctn">
-                    <div class="line-code">Code</div>
-                    <div class="line-comment">Comment</div>
-                </div>
-            </div>
-        </div>
-        
-        <div id="lines-table__body" #codeCommentBlock>
-            <div class="raw-line" *ngFor="let line of lines; let lineCount=index">
-                <div class="counter">{{lineCount}}</div>
-                <div class="code-comment-ctn">
-                    <div class="line-code" contenteditable 
-                         [attr.data-placeholder]="CODE_PLACEHOLDER"
-                         (keydown.enter)="addCodeCommentLine()" 
-                         (keydown.tab)="indentCode(lineCount)"
-                         (keydown.shift.tab)="indentCode(lineCount, true)"
-                         [innerHTML]="line.code">
-                    </div>
-                    <div class="line-comment" contenteditable 
-                         [attr.data-placeholder]="COMMENT_PLACEHOLDER"
-                         [innerHTML]="line.comment">
+<div class="code">
+    <!-- Code to be disaplyed -->
+    <div id="display-code">
+        <div id="lines-table">
+            
+            <div id="lines-table__head">
+                <div class="raw-line">
+                    <div class="head-counter">#</div>
+                    <div class="code-comment-ctn">
+                        <div class="line-code">Code</div>
+                        <div class="line-comment">Comment</div>
                     </div>
                 </div>
-                <div class="bin" (click)="deleteCodeCommentLine(lineCount)">
-                    <img src="assets/img/red_bin.png">
+            </div>
+            
+            <div id="lines-table__body" #codeCommentBlock>
+                <div class="raw-line" *ngFor="let line of lines; let lineCount=index">
+                    <div class="counter">{{lineCount}}</div>
+                    <div class="code-comment-ctn">
+                        <div class="line-code-{{lineCount}}" contenteditable 
+                            [attr.data-placeholder]="CODE_PLACEHOLDER"
+                            (keydown.enter)="addCodeCommentLine(lineCount)" 
+                            (keydown.tab)="indentCode(lineCount)"
+                            (keydown.shift.tab)="indentCode(lineCount, true)"
+                            [innerHTML]="line.code">
+                        </div>
+                        <div class="line-comment" contenteditable 
+                            [attr.data-placeholder]="COMMENT_PLACEHOLDER"
+                            [innerHTML]="line.comment">
+                        </div>
+                    </div>
+                    <div class="bin" (click)="deleteCodeCommentLine(lineCount)">
+                        <img src="assets/img/red_bin.png">
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div id="lines-table__btn" >
-            <button (click)="addCodeCommentLine()">New Line</button> 
-            <button id="display-code__btn" (click)="getCodeED()">Generate Code</button>
-        </div>
-    </div>       
+            <div id="lines-table__btn">
+                <button (click)="addCodeCommentLine()">New Line</button> 
+                <button id="display-code__btn" (click)="getCodeED()">Generate Code</button>
+            </div>
+        </div>       
+    </div>
+
+    <!-- Monaco Code Editor -->
+    <ngx-codemirror
+        #codeEditor
+        id="codeEditor"
+        [(ngModel)]="code"
+        [options]="editorOptions">
+    </ngx-codemirror>
 </div>
-
-<!-- Monaco Code Editor -->
-<ngx-codemirror
-    #codeEditor
-    id="codeEditor"
-    [(ngModel)]="code"
-    [options]="editorOptions">
-</ngx-codemirror>
+<div class="config-btn">
+    <button (click)="downloadConfig()">Download Configuration</button>
+    <button (click)="loadConfig()">Load Configuration</button>
+    <div>
+        <select id="data-structure">
+            <!-- <optgroup> -->
+                <option>
+                    BarPlot
+                </option>
+            <!-- </optgroup> -->
+        </select>
+    </div>
+    <div>
+        <label for="initial-values">Initial Values:</label>
+        <input id="initial-values" type="text" placeholder="e.g. 1, 5, 2, 6, 8, 3">
+    </div>
+    <div>
+        <input id="user-input" type="checkbox">
+        <label for="user-input">Allow User Input</label>
+    </div>
+</div>

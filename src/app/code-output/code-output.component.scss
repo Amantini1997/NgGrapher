@@ -1,22 +1,46 @@
 @import "../../variables.scss";
 @import "../../styles.scss";
 
+$comment-width: 55%;
+$min-comment-height: 48px;
+
 #output {
-    #code-highlighter {
+    @extend .flex-row;
+    .code-highlighter {
         font-family: 'Fira Code', monospace;
+        width: 100% - $comment-width;
         
         & > * {
+            display: flex;
+            justify-content: left;
+            align-items: center;
             background-color:$gray4;
             color: $white;
             border: solid 1px $white;
-            height: 30px;
+            min-height: 30px;
             padding-left: 5px;
+
+            &:only-of-type {
+                min-height: $min-comment-height;
+            }
             
             &.highlight {
                 background-color: $color3;
                 color: $white;
             }
         }
+    }
+
+    .comment-box {
+        @extend .flex-row;
+        @extend .flex-center;
+        width: $comment-width;
+        min-height: $min-comment-height;
+        // display: block;
+        // margin: auto;
+        padding: 10px;
+        border: solid 2px $white;
+        background-color: $color2;
     }
 }
 
@@ -42,8 +66,30 @@
         }
     }
 
-    & #play-pause-btn > img {
-        width: 35px;
+    & button {
+        border: 5px;
+        color: $white;
+        background-color: $color5;
+        padding: 10px 15px;
+        font-size: medium;
+        height: 40px;
+        width: 75px;
+        animation: all .2s;
+
+        &:last-child {
+            margin-left: 10px;
+        }
+
+        &:disabled {
+            color: $gray1;
+            background-color: $gray4;
+            cursor: not-allowed;
+        }
+    }
+
+    & .controller > img {
+        height: 40px;
+        width: 75px;
         padding-top: 5px;
         cursor: pointer;
 

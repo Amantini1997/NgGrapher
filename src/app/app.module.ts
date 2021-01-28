@@ -11,6 +11,7 @@ import { AnimationPageComponent } from './animation-page/animation-page.componen
 import { InstructionsPageComponent } from './instructions-page/instructions-page.component';
 import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 import { NgxSliderModule } from '@angular-slider/ngx-slider';
+import { AnimatorComponent } from './animator/animator.component';
 
  
 
@@ -21,7 +22,8 @@ import { NgxSliderModule } from '@angular-slider/ngx-slider';
     CodeOutputComponent,
     GeneratorPageComponent,
     AnimationPageComponent,
-    InstructionsPageComponent
+    InstructionsPageComponent,
+    AnimatorComponent
   ],
   imports: [
     BrowserModule,

@@ -9,7 +9,7 @@ export class InstructionsPageComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit(): void {
+  ngOnInit() {
     const accordions = Array.from(document.querySelectorAll('.accordion-container'));
     new Accordion(accordions, {});
   }

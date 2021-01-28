@@ -10,7 +10,7 @@ export class GeneratorPageComponent{
 
   codeED: CodeED;
 
-  renderCode(codeED: CodeED): void {
+  renderCode(codeED: CodeED) {
     this.codeED = codeED;
   }
 }

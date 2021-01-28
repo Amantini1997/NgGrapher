@@ -1,5 +1,8 @@
 import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
 import { CodeComment, CodeED } from '../codeInterfaces';
+import { DataStructure, NodeType } from '../grapher';
+
+import bubbleSort from '../../assets/templates/bubbleSort.json';
 
 @Component({
   selector: 'code-input',
@@ -9,9 +12,6 @@ import { CodeComment, CodeED } from '../codeInterfaces';
 export class CodeInputComponent {
   
   @Output() generate = new EventEmitter<CodeED>();
-
-  @ViewChild("codeCommentBlocksContainer", {read: ElementRef}) codeCommentBlocksContainer: ElementRef;
-  @ViewChild("codeCommentBlock", {read: ElementRef}) codeContainer: ElementRef;
   @ViewChild("codeEditor") codeEditor;
 
   readonly CODE_PLACEHOLDER = "insert code here";
@@ -56,23 +56,26 @@ export class CodeInputComponent {
 // highlight the function call
 yield 0
 
-const LINE_DYNAMIC_COMMENT = "console.log()";
+let a = 34
+let c = 16
+
 // highlight the console.log()
 yield {
     line: 1, 
-    comment: "printing " + LINE_DYNAMIC_COMMENT
+    comment: "printing a + c = " + (a + c)
 } 
 console.log("Hello, World!");
 
 // highlight the end of the function
-yield 2`;
+yield 2
 
+
+`;
 
   lines: CodeComment[] = [];
-
   delay = 1000;
-  dataInput = [9, 1, 5, 7, 2, 4, 3]; // TODO make this dynamic
-  // codeMirror: CodemirrorComponent;
+  // TODO make this dynamic
+  initialValues = [9, 1, 5, 7, 2, 4, 3]; 
 
 
   constructor() {
@@ -99,31 +102,41 @@ yield 2`;
   }
 
   // Correctly set the size of the code editor
-  ngAfterViewInit(): void {
+  ngAfterViewInit() {
     this.codeEditor.codeMirror.setSize(null, this.EDITOR_HEIGHT);
   }
 
-  deleteCodeCommentLine(lineIndex: number): void {
+  deleteCodeCommentLine(lineIndex: number) {
       this.lines.splice(lineIndex, 1);
   }
 
-  addCodeCommentLine(): void {
-    this.lines.push({
+  addCodeCommentLine(lineIndex: number = this.lines.length) {
+    window.event.preventDefault();
+    const nextLineIndex = lineIndex + 1
+    this.lines.splice(nextLineIndex, 0, {
       code: '',
       comment: ''
     });
+    window.requestAnimationFrame(() => this.focusOnLine(nextLineIndex));
   }
 
-  indentCode(lineIndex: number, inverse=false): void {
+  focusOnLine(lineIndex: number) {
+    (<HTMLElement>document.querySelector(`.line-code-${lineIndex}`)).focus();
+  }
+
+  indentCode(lineIndex: number, inverse=false) {
     window.event.preventDefault();
-    const INDENT = "&emsp;";
-    let line = this.lines[lineIndex];
+
+    // ! Do not replace INDENT with normal space
+    const INDENT = " ";
+    let line = document.querySelector(`.line-code-${lineIndex}`);
     if(inverse) {
-      if(line.code.startsWith(INDENT)) {
-        line.code = line.code.replace(INDENT, "");
+      console.log("+" + line.innerHTML + "+", line.innerHTML.startsWith(INDENT))
+      if(line.innerHTML.startsWith(INDENT)) {
+        line.innerHTML = line.innerHTML.replace(INDENT, "");
       }
     } else {
-      line.code = INDENT + line.code;
+      line.innerHTML = INDENT + line.innerHTML;
     }
   }
 
@@ -138,17 +151,26 @@ yield 2`;
   }   
 
   extractLineValue(parent: HTMLElement, elementName: string) {
-    return parent.querySelector(`.line-${elementName}`).innerHTML;
+    return parent.querySelector(`[class^="line-${elementName}"]`).innerHTML;
   }
 
-  getCodeED(): void {
+  getConfig(): CodeED {
     const executableCode = this.getExecutableCode();
     const filteredDisplayableCode = this.getFilteredDisplayableCode();
-    const output: CodeED = {
+    const config: CodeED = {
       executable: executableCode,
-      displayable: filteredDisplayableCode
+      displayable: filteredDisplayableCode,
+      initialValues: this.initialValues,
+      // TODO make these dynamic
+      nodeType: NodeType.Bar,
+      structure: DataStructure.BarPlot
     };
-    this.generate.emit(output);
+    return config;
+  }
+
+  getCodeED() {
+    const config = this.getConfig();
+    this.generate.emit(config);
   }
 
   getFilteredDisplayableCode(): CodeComment[] {
@@ -186,8 +208,11 @@ yield 2`;
   getExecutableCode(): string {
     const editor = this.codeEditor.codeMirror;
     const rawExecutableCode = editor.getValue();
-    const uncommentedExecutableCode = this.removeCommentLines(rawExecutableCode);
-    const executableCode = uncommentedExecutableCode.join("\n");
+    // TODO: decide whether to remove comments
+    // console.log(rawExecutableCode)
+    // const uncommentedExecutableCode = this.removeCommentLines(rawExecutableCode);
+    // const executableCode = uncommentedExecutableCode.join("\n");
+    const executableCode = rawExecutableCode;
     return executableCode;
   }
   
@@ -200,25 +225,45 @@ yield 2`;
     let uncommentedCode = [];
     const lines = code.split("\n");
     for(let line of lines) {
-        const trimmedLine = line.trim();
-        // line is the start of a multiple line comment
-        if (trimmedLine.startsWith(MULTIPLE_LINE_COMMENT_OPEN)) {
-          isMultipleLineComment = true;
+      const trimmedLine = line.trim();
+      // line is the start of a multiple line comment
+      if (trimmedLine.startsWith(MULTIPLE_LINE_COMMENT_OPEN)) {
+        isMultipleLineComment = true;
+      }
+      // line is a comment
+      if (isMultipleLineComment || trimmedLine.startsWith(SINGLE_LINE_COMMENT)) {
+        // line is the end of a multiple line comment
+        if (trimmedLine.endsWith(MULTIPLE_LINE_COMMENT_CLOSE)) {
+          isMultipleLineComment = false;
         }
-        // line is a comment
-        if (isMultipleLineComment || trimmedLine.startsWith(SINGLE_LINE_COMMENT)) {
-            // line is the end of a multiple line comment
-            if (trimmedLine.endsWith(MULTIPLE_LINE_COMMENT_CLOSE)) {
-              isMultipleLineComment = false;
-            }
-            continue;
-        }
-        // remove empty lines
-        if (trimmedLine === "") {
-          continue;
-        }
-        uncommentedCode.push(line);
+        continue;
+      }
+      // remove empty lines
+      if (trimmedLine === "") {
+        continue;
+      }
+      uncommentedCode.push(line);
     }
     return uncommentedCode;
+  }
+
+  downloadConfig() {
+    const config = this.getConfig();
+    const a = document.createElement("a");
+    const file = new Blob([JSON.stringify(config)], { type: "text/json" });
+    a.href = URL.createObjectURL(file);
+    a.download = "animator_config.json";
+    a.click();
+  }
+
+  loadConfig() {
+    // TODO make this dynamic
+    // const config = JSON.parse("file")   
+    let config = bubbleSort; 
+    // let config =
+    // {"executable":"let inputArr = grapher.getNodes().map(node => node.value);\n\nlet len = inputArr.length;\n\nfor (let i = 0; i < len; i++) {\n\tyield {\n      line: 0,\n      comment: (i < len) \n      \t\t\t\t\t? i + \" < \" + len + \", so we stay in the loop\"\n    \t\t\t\t\t: i + \" is = to \" + len + \", so we exit the loop\"\n    }\n  \n  \tfor (let j = 0; j < len - 1; j++) {\n        yield {\n          line: 1,\n          comment: (j < len-1) \n      \t\t\t\t\t? j + \" < \" + len + \", so we stay in the loop\"\n    \t\t\t\t\t: j+ \" is = to \" + len + \", so we exit the loop\"\n        }\n      \n    \tif (inputArr[j] > inputArr[j + 1]) {\n      \t\tyield {\n\t\t\t\tline: 2,\n                comment: inputArr[j] + \" > \" + inputArr[j + 1]\n            }\n          \n      \t\tlet tmp = inputArr[j];\n      \t\tyield 3\n      \t\t\n          \tinputArr[j] = inputArr[j + 1];\n\t\t\tyield 4\n\t\t\t\n          \tinputArr[j + 1] = tmp;\n            grapher.swap(j, j+1);\n            yield 5\n        }\n    }\n}\nyield 9\n","displayable":[{"code":"for (let i = 0; i &lt; len; i++) {","comment":"Checking index i is in range"},{"code":"&nbsp; &nbsp; for (let j = 0; j &lt; len; j++) { ","comment":"Checking index j is in range"},{"code":"&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;if (inputArr[j] &gt; inputArr[j + 1]) {","comment":"if the element at index j + 1 is bigger than the element at index j:"},{"code":"&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; let tmp = inputArr[j];","comment":"swap the variables"},{"code":"&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; inputArr[j] = inputArr[j + 1];","comment":"swap the variables"},{"code":"&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; inputArr[j + 1] = tmp;","comment":"swap the variables"},{"code":"&nbsp; &nbsp; &nbsp; &nbsp; }","comment":""},{"code":"&nbsp; &nbsp; }","comment":""},{"code":"}","comment":""},{"code":"&nbsp;","comment":"Done! Array is sorted :)"}],"initialValues":[9,1,5,7,2,4,3],"nodeType":"Bar","structure":"BarPlot"}
+    
+    this.code = config.executable
+    this.lines = config.displayable;   
   }
 }

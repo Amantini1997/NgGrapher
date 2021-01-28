@@ -1,7 +1,8 @@
 import { Options } from '@angular-slider/ngx-slider';
-import { Component, Input } from '@angular/core';
-import { CodeED } from '../codeInterfaces';
-import * as iGrapher from '../grapher';
+import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { AnimatorComponent } from '../animator/animator.component';
+import { CodeComment, CodeED } from '../codeInterfaces';
+import { Grapher, Sorter, NodeType, EdgeType, DataStructure } from '../grapher';
 
 @Component({
   selector: 'code-output',
@@ -10,74 +11,117 @@ import * as iGrapher from '../grapher';
 })
 export class CodeOutputComponent {
 
-  readonly GeneratorFunction = Object.getPrototypeOf(function*(){}).constructor;
-  
-  currentLine: HTMLElement;
-  delay: number;
-  animationIsPaused: boolean;
-  value: number = 550;
-  options: Options = {
-    floor: 100,
-    ceil: 999
-  };
-  userInput: string[];
-  grapher: iGrapher.Grapher;
+  @ViewChildren("executableLine") executableLines: QueryList<HTMLDivElement>;
+  @ViewChild("delay", {read: ElementRef}) delay: ElementRef;
+  @ViewChild(AnimatorComponent) animator: AnimatorComponent;
+  @Input() 
+  set newCodeED(codeED: CodeED) {
+    if(!codeED) return;
+    this.codeED = codeED;
+    this.buildInitialGraph();
+  }
 
-  @Input() codeED: CodeED;
-  constructor() { 
-    this.animationIsPaused = true;
-    this.grapher = new iGrapher.Sorter();
-    this.grapher.finalise();
+  readonly GeneratorFunction = Object.getPrototypeOf(function*(){}).constructor;
+  readonly value: number = 2550;
+  readonly options: Options = {
+      floor: 100,
+      ceil: 5000
+  };
+  readonly CODE_PLACEHOLDER: CodeComment = {
+    code: "Code will appear here",
+    comment: "Comments will appear here"
+  };
+  
+  currentLine: number;
+  currentComment: string;
+  animationHasStarted: boolean = false; 
+  animationIsPaused: boolean = false;
+  animation: any;
+  userInput: string[];
+  grapher: Grapher;
+  codeED: CodeED;
+
+  constructor() { }
+
+  buildInitialGraph() {
+    this.grapher = new Sorter(this.codeED.initialValues);
+    // TODO Implement buildGraph
+    //// this.grapher.buildGraph();
   }
 
   generateJsFunctionFromCode(): Generator {
-    return new this.GeneratorFunction(this.codeED)(this.userInput, this.grapher);
-  }
+    const executableCode = this.codeED.executable;
+    return new this.GeneratorFunction("grapher", executableCode)(this.grapher);
+  } 
   
-  hiLine(line: number | JSON): void {
-    //@ts-ignore
+  hiLine(line: any) {
     const lineNumber = line.line ?? line;
-    const HIGHLIGHT = "highlight";
-    if (this.currentLine) {
-        this.currentLine.classList.remove(HIGHLIGHT);
-    }
-    this.currentLine = document.querySelector(`.code-line-${lineNumber}`);
-    this.currentLine.classList.add(HIGHLIGHT);  
-    
+    this.currentLine = lineNumber;
+
     //@ts-ignore
-    const comment = line.comment || this.currentLine.dataset.comment;
-    if (comment) {
-        console.log(comment);
+    const comment = line.comment || this.executableLines.toArray()[lineNumber].nativeElement.dataset.comment;
+    this.currentComment = comment;
+  }
+
+  restoreOriginalConfiguration() {
+    this.animator.restoreOriginalConfiguration();
+  }
+
+  reset(restoreOriginalConfiguration: boolean = true) {
+    if (restoreOriginalConfiguration) {
+      this.restoreOriginalConfiguration();
     }
+    this.animationIsPaused = false;
+    this.animationHasStarted = false;
+    this.currentLine = null;
+    clearTimeout(this.animation);
   }
-  
-  runHighlighter(): void {
+
+  startAnimation() {
+    this.animationHasStarted = true;
     var iter = this.generateJsFunctionFromCode();
-    var line = iter.next();
-    var firstIteration = true;
-    const linesHighlighter = setInterval(() => {
-        if (line.done) {
-            clearInterval(linesHighlighter);
-        } else if(!this.animationIsPaused) {
-            this.hiLine(line.value);
-            line = iter.next();
-        } else {
-            // execution is paused, check for awakes
-            this.delay = 100;
-        }
-    }, firstIteration 
-        //@ts-ignore
-        ? (firstIteration=false) & 0 
-        : this.delay
-    );
+    const line = iter.next();
+    this.animationInterval(iter, line);
   }
 
-  updateDelay(delaySlide: HTMLInputElement): void {
-    console.log(delaySlide)
-    this.delay = +delaySlide.value;
+  animationInterval = (iter: any, line: any) => {
+    let waitingInterval: number;
+    if (line.done) {
+      // generator is done
+      this.reset(false);
+      return;
+    } 
+    
+    if (this.animationIsPaused) {
+      // animation is paused, check for awakes
+      waitingInterval = 100;
+    } else {
+      // animation is running
+      this.hiLine(line.value);
+      line = iter.next();
+      waitingInterval = +this.delay.nativeElement.innerHTML;
+    }
+
+    this.animation = setTimeout(this.animationInterval, waitingInterval, iter, line);
   }
 
-  togglePause(): void {
+  togglePause() {
     this.animationIsPaused = !this.animationIsPaused;
   }
+
+  appendElement() {
+    const structure = this.grapher.getDataStructure()
+    switch(structure) {
+      case DataStructure.BarPlot: {
+
+      }
+      case DataStructure.List: {
+
+      }
+      case DataStructure.Tree: {
+
+      }
+    }
+  }
 }
+

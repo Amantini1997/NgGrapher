@@ -1,44 +1,58 @@
 <!-- CODE  -->
 <div id="output">
-    <div id="code-highlighter">
-        <div *ngFor="let codeComment of codeED?.displayable; let index=index"
+    <div class="code-highlighter">
+        <div *ngFor="let codeComment of codeED?.displayable || [CODE_PLACEHOLDER]; let lineIndex=index"
+             #executableLine
+             [class.highlight]="lineIndex === currentLine"
              [attr.data-comment]="codeComment.comment"
-             [attr.data-lineIndex]="index"
+             [attr.data-lineIndex]="lineIndex"
              [innerHTML]="codeComment.code">
         </div>
     </div>
 
-    <!-- PLOTTER -->
-    <!-- <select>
-        <option value="list">List</option>
-        <option value="tree">Tree</option>
-        <option value="barplot">Bar Plot</option>
-    </select> -->
+    <div class="comment-box">
+        {{currentComment || CODE_PLACEHOLDER.comment}}
+    </div>
 </div>
 
-
+<animator [newGrapher]="grapher"></animator>
 
 <div id="player">
     <div>
         <span>
-            Value: {{slider.value}}
+            Value (ms):&nbsp;
+        </span>
+        <span #delay>
+            {{slider.value}}
         </span>
         <ngx-slider #slider 
                     id="slider"
                     [value]="value" 
-                    [options]="options"
-                    (valueChange)="updateDelay(slider.value)">
+                    [options]="options">
         </ngx-slider>
 
-        <button id="start">START</button>
+        
+        <button *ngIf="!animationHasStarted" 
+                [disabled]="!codeED"
+                (click)="startAnimation()">
+            START
+        </button>
 
-        <div id="play-pause-btn" (click)="togglePause()">
-            <ng-container *ngIf="animationIsPaused; else elseTemplate">
+        <div *ngIf="animationHasStarted" 
+             class="controller" 
+             (click)="togglePause()">
+            <ng-container *ngIf="animationIsPaused; else pause">
                 <img src="assets/img/play.svg">
             </ng-container>
-            <ng-template #elseTemplate>
+            <ng-template #pause>
                 <img src="assets/img/pause.svg">
             </ng-template>
         </div>
+
+        <button (click)="reset()" 
+        >
+        <!-- [disabled]="!animationHasStarted" -->
+            RESET
+        </button>
     </div>
 </div>

@@ -1,6 +1,35 @@
 <h1>Welcome to the Animation Page!</h1>
-<code-output *ngIf="config; else import"></code-output>
-<div #import class="config-ctn">
-    <label for="input">Import Configuration: &nbsp;</label>
-    <input id="input" type="file" (change)="loadConfiguration(this)">
-</div>
+
+<hr>
+<ng-template *ngIf="config; else import">
+    <code-output></code-output>
+    <div>nel</div>
+</ng-template>
+<hr>
+
+<ng-template #import>
+    <div class="config-ctn">
+        <label for="input">Import Configuration: &nbsp;</label>
+        <input id="input" type="file" (change)="loadConfig($event)">
+        <hr>
+        <label for="template">Or choose an existing one: &nbsp;</label>
+        
+        <select #template id="template">
+            <optgroup  *ngFor="let templateOption of templateOptions | keyvalue" 
+                       [label]="templateOption.key | titlecase"
+            >
+                <option *ngFor="let algorithm of templateOption.value | keyvalue" 
+                        [value]="algorithm.value"
+                >
+                        {{algorithm.key}}
+                </option>
+            </optgroup>
+        </select>
+        <button (click)="loadTemplateConfig(template.value)">
+            Confirm Template
+        </button>
+    </div>
+</ng-template>
+
+
+<code-output [newCodeED]="config"></code-output>
