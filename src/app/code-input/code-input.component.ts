@@ -3,6 +3,7 @@ import { CodeComment, CodeED } from '../codeInterfaces';
 import { DataStructure, NodeType } from '../grapher';
 
 import bubbleSort from '../../assets/templates/bubbleSort.json';
+import { throws } from 'assert';
 
 @Component({
   selector: 'code-input',
@@ -13,9 +14,13 @@ export class CodeInputComponent {
   
   @Output() generate = new EventEmitter<CodeED>();
   @ViewChild("codeEditor") codeEditor;
+  @ViewChild("initialValues", {read: ElementRef}) initialValuesInput: ElementRef;
+  @ViewChild("numericalInput", {read: ElementRef}) numericalInput: ElementRef;
 
   readonly CODE_PLACEHOLDER = "insert code here";
   readonly COMMENT_PLACEHOLDER = "insert comment here";
+  readonly DEFAULT_INITIAL_VALUES = [9, 1, 5, 7, 2, 4, 3]; 
+  readonly NUMERICAL_INPUT_REGEX = /^\d+(\.\d){0,1}(\s*\,\s*\d+(\.\d){0,1})*\s*$/;
 
   readonly editorOptions = {
     mode:  "javascript",
@@ -23,6 +28,9 @@ export class CodeInputComponent {
     theme: 'material'
   };
   readonly EDITOR_HEIGHT = "450px";
+
+  inputValuesIsValid: boolean = false;
+  initialValuesAsString: string = "";
 
   code: string = `/** 
 *  Use this space to write the logic of the program, i.e. the javascript function 
@@ -74,9 +82,6 @@ yield 2
 
   lines: CodeComment[] = [];
   delay = 1000;
-  // TODO make this dynamic
-  initialValues = [9, 1, 5, 7, 2, 4, 3]; 
-
 
   constructor() {
     this.lines = [
@@ -131,7 +136,6 @@ yield 2
     const INDENT = " ";
     let line = document.querySelector(`.line-code-${lineIndex}`);
     if(inverse) {
-      console.log("+" + line.innerHTML + "+", line.innerHTML.startsWith(INDENT))
       if(line.innerHTML.startsWith(INDENT)) {
         line.innerHTML = line.innerHTML.replace(INDENT, "");
       }
@@ -157,15 +161,31 @@ yield 2
   getConfig(): CodeED {
     const executableCode = this.getExecutableCode();
     const filteredDisplayableCode = this.getFilteredDisplayableCode();
+    const initialValues = this.getInitialValues();
     const config: CodeED = {
       executable: executableCode,
       displayable: filteredDisplayableCode,
-      initialValues: this.initialValues,
+      initialValues: initialValues,
       // TODO make these dynamic
       nodeType: NodeType.Bar,
       structure: DataStructure.BarPlot
     };
     return config;
+  }
+
+  getInitialValues(): any[] {
+    if (!this.inputValuesIsValid) {
+      throw("The input values are not valid, please fix them and try again");
+    }
+    // const castToNumber = (<HTMLInputElement> this.numericalInput.nativeElement).checked;
+    const valuesAsString = (<HTMLInputElement> this.initialValuesInput.nativeElement).value;
+    let valuesAsArray = valuesAsString.split(",")
+                                      .map(value => value.trim())
+                                      .map(Number);
+    // } else {
+    //   valuesAsArray.map(value => "\"" + value + "\"");
+    // }
+    return valuesAsArray || this.DEFAULT_INITIAL_VALUES;
   }
 
   getCodeED() {
@@ -203,6 +223,18 @@ yield 2
 
   codeCommentBlockIsRemovable({code}: CodeComment): boolean {
     return code !== "";
+  }
+
+  validateInitialValues(inputValues: string = null) {
+    const initialValuesInput = <HTMLInputElement> this.initialValuesInput.nativeElement;
+    inputValues = inputValues || initialValuesInput.value;
+    const dataIsValid = this.NUMERICAL_INPUT_REGEX.test(inputValues);
+    if(dataIsValid) {
+      initialValuesInput.classList.remove("wrong");
+    } else {
+      initialValuesInput.classList.add("wrong");
+    }
+    this.inputValuesIsValid = dataIsValid;
   }
 
   getExecutableCode(): string {
@@ -260,10 +292,10 @@ yield 2
     // TODO make this dynamic
     // const config = JSON.parse("file")   
     let config = bubbleSort; 
-    // let config =
-    // {"executable":"let inputArr = grapher.getNodes().map(node => node.value);\n\nlet len = inputArr.length;\n\nfor (let i = 0; i < len; i++) {\n\tyield {\n      line: 0,\n      comment: (i < len) \n      \t\t\t\t\t? i + \" < \" + len + \", so we stay in the loop\"\n    \t\t\t\t\t: i + \" is = to \" + len + \", so we exit the loop\"\n    }\n  \n  \tfor (let j = 0; j < len - 1; j++) {\n        yield {\n          line: 1,\n          comment: (j < len-1) \n      \t\t\t\t\t? j + \" < \" + len + \", so we stay in the loop\"\n    \t\t\t\t\t: j+ \" is = to \" + len + \", so we exit the loop\"\n        }\n      \n    \tif (inputArr[j] > inputArr[j + 1]) {\n      \t\tyield {\n\t\t\t\tline: 2,\n                comment: inputArr[j] + \" > \" + inputArr[j + 1]\n            }\n          \n      \t\tlet tmp = inputArr[j];\n      \t\tyield 3\n      \t\t\n          \tinputArr[j] = inputArr[j + 1];\n\t\t\tyield 4\n\t\t\t\n          \tinputArr[j + 1] = tmp;\n            grapher.swap(j, j+1);\n            yield 5\n        }\n    }\n}\nyield 9\n","displayable":[{"code":"for (let i = 0; i &lt; len; i++) {","comment":"Checking index i is in range"},{"code":"&nbsp; &nbsp; for (let j = 0; j &lt; len; j++) { ","comment":"Checking index j is in range"},{"code":"&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;if (inputArr[j] &gt; inputArr[j + 1]) {","comment":"if the element at index j + 1 is bigger than the element at index j:"},{"code":"&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; let tmp = inputArr[j];","comment":"swap the variables"},{"code":"&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; inputArr[j] = inputArr[j + 1];","comment":"swap the variables"},{"code":"&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; inputArr[j + 1] = tmp;","comment":"swap the variables"},{"code":"&nbsp; &nbsp; &nbsp; &nbsp; }","comment":""},{"code":"&nbsp; &nbsp; }","comment":""},{"code":"}","comment":""},{"code":"&nbsp;","comment":"Done! Array is sorted :)"}],"initialValues":[9,1,5,7,2,4,3],"nodeType":"Bar","structure":"BarPlot"}
-    
     this.code = config.executable
-    this.lines = config.displayable;   
+    this.lines = config.displayable;  
+    this.initialValuesAsString = config.initialValues.join(", "); 
+    this.validateInitialValues(this.initialValuesAsString);
   }
 }
+

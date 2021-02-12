@@ -59,9 +59,8 @@ class Grapher {
     private nodes: Array<Node>;    
     private edges: Array<Edge>;
     private swapFunction: Function;
-    private index: number = 0;
-
-    private readonly DEFAULT_INITIAL_VALUES = [1, 6, 2, 4, 8, 0, 8, 3];
+    private lastIndex: number = 0;
+    private virtualIds: Array<Number>;
 
     userInputIsAllowed: boolean = true;
 
@@ -74,14 +73,17 @@ class Grapher {
         this._setNodeType(nodeType);
         this._setEdgeType(edgeType);   
         this._setDataStructure(structure);
-        initialValues = initialValues || this.DEFAULT_INITIAL_VALUES;
-        this.nodes = initialValues.map(value => {
-            return {
-                id: this.index++,
-                value: value,
-                mode: NodeSelectionMode.None
-            }
-        }) || [];
+        initialValues = initialValues || [];
+        this.nodes = initialValues.map(this._newNode) || [];
+        this.virtualIds = [...Array(this.nodes.length).keys()]
+    }
+
+    _newNode = (value: number): Node => {
+        return {
+            id: this.lastIndex++,
+            value: value,
+            mode: NodeSelectionMode.None
+        }
     }
 
     _setNodeType(nodeType: NodeType) {
@@ -100,19 +102,29 @@ class Grapher {
         return this.nodes;
     }
 
+    _getNodeById(id: number): Node {
+        const virtualId = this.virtualIds[id];
+        const node = this.nodes.find(node => node.id == virtualId);
+        return node;
+    }
+
     setNodeModeSelected(id: number) {
-        const node = this.nodes.find(node => node.id == id);
+        const node = this._getNodeById(id);
         node.mode = NodeSelectionMode.Selected;
     }
 
     setNodeModeCompared(id: number) {
-        const node = this.nodes.find(node => node.id == id);
+        const node = this._getNodeById(id);
         node.mode = NodeSelectionMode.Compared
     }
 
     setNodeModeNone(id: number) {
-        const node = this.nodes.find(node => node.id == id);
+        const node = this._getNodeById(id);
         node.mode = NodeSelectionMode.None;
+    }
+
+    getValues(): Array<number> {
+        return this.nodes.map(node => node.value);
     }
 
     _setEdgeType(edgeType: EdgeType) {
@@ -147,17 +159,19 @@ class Grapher {
         return this.nodes[index];
     }
 
-    // setDefaultUserInput(input: Array<any>) {
-    //     this.defaultUSerInput = input;
-    // }
-
     setSwapFunction(swapFunction: Function) {
         this.swapFunction = swapFunction;
     }
 
-    swap(index1: string, index2: string) {
-        console.log(index1, index2)
+    swapVirtualIds(index1: number, index2: number) {
+        const temp = this.virtualIds[index1];
+        this.virtualIds[index1] = this.virtualIds[index2];
+        this.virtualIds[index2] = temp;
+    }
+
+    swap(index1: number, index2: number) {
         this.swapFunction(index1, index2);
+        this.swapVirtualIds(index1, index2);
     }
 
     blockUserInput() {
@@ -166,6 +180,7 @@ class Grapher {
 
     push(node: any) {
         this.nodes.push(node);
+        // this.virtualIds[]
     }
 
     pop(): any {
@@ -207,10 +222,24 @@ class Grapher {
     // }
 
     getErrorMessage(obj: any, enumName: string, enumList: any): string {
-        return "Expected object of type " + enumName +", but received " + obj +
-        ". \nAllowed types are: " + Object.keys(enumList).join(", ");
+        return `Expected object of type ${enumName}, but received ${obj}
+Allowed types are: ${Object.keys(enumList).join(", ")}`;
     }
 
+    _printError(error: Error) {
+        const ERROR_STACK_POSITION = 1;
+        // the difference between the user code, and the code
+        // used by the browser to generate a dynamic function
+        // e.g. function anonymous() { ...
+        const BOILER_CODE_LENGTH = 2;
+        const message = error.message;
+        // the second row of the error.stack object is the 
+        // row specifying the specific error
+        const error_row = error.stack.split("\n")[ERROR_STACK_POSITION];
+        const error_row_elements = error_row.split(":");
+        const col_error = error_row_elements.pop().slice(0, -1);
+        const line_error = error_row_elements.pop() + BOILER_CODE_LENGTH;
+    }
 
 }
 
@@ -252,6 +281,7 @@ export {
     Sorter,
     BinaryTree,
     List,
+    Node,
     NodeType,
     NodeSelectionMode,
     EdgeType,

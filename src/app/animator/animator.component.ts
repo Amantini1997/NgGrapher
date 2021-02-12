@@ -1,5 +1,5 @@
 import { Input, Component, HostListener, ChangeDetectorRef } from '@angular/core';
-import { Grapher, Sorter } from '../grapher';
+import { DataStructure, Grapher, NodeType, Sorter, Node } from '../grapher';
 
 @Component({
   selector: 'animator',
@@ -9,7 +9,10 @@ import { Grapher, Sorter } from '../grapher';
 export class AnimatorComponent {
 
   grapher: Grapher;
-  originalNodeConfiguration: string;
+  nodes: Node[];
+  dataStructure: DataStructure;
+  nodeType: NodeType;
+  originalNodesConfiguration: string;
 
   scale: number = 1;
   dragging: boolean;
@@ -36,35 +39,44 @@ export class AnimatorComponent {
 
   @Input() 
   set newGrapher( grapher: Grapher) {
-    if(!grapher) return
+    if(!grapher) return;
     this.grapher = grapher;
+    this.nodes = grapher.getNodes();
+    this.dataStructure = grapher.getDataStructure();
+    this.nodeType = grapher.getNodeType();
     this.grapher.setSwapFunction(this.swap);
+    this.nodeCount = this.nodes.length;
+    switch(this.dataStructure) {
+      case DataStructure.BarPlot:
+        this.normaliseBarsHeight();
+      break;
+      case DataStructure.List:
+
+      break;
+      case DataStructure.Tree:
+
+      break;
+    }
     this.cdRef.detectChanges();
-    this.something();
     this.adjustBarPlotPaddings();
-    window.requestAnimationFrame(() => this.originalNodeConfiguration = document.querySelector(".node-ctn").innerHTML);
-    
+    this.originalNodesConfiguration = document.querySelector(".fixed-ctn").innerHTML;
   }
   
   constructor(private cdRef: ChangeDetectorRef) { }
 
-  // TODO rename
-  something() {
-    const nodes = this.grapher.getNodes();
-    const values = nodes.map(node => node.value);
+  normaliseBarsHeight() {
+    const values = this.nodes.map(node => node.value);
     const minValue = Math.min(...values);
     this.minValue = (minValue > 0) ? 0 : minValue;
     this.maxValue = Math.abs(Math.max(...values));
-    this.nodeCount = nodes.length;
   }
 
-  @HostListener('window:resize')
   adjustBarPlotPaddings() {
     if (!this.nodeContainer) {
-      this.nodeContainer = document.querySelector(".fixed-ctn > div");
+      this.nodeContainer = document.querySelector(".node-ctn");
     }
     const graphWidth = this.nodeSize * this.nodeCount + this.barsPadding * (this.nodeCount - 1);
-    const containerWidth = +getComputedStyle(this.nodeContainer).getPropertyValue("width").slice(0, -2)
+    const containerWidth = Number(getComputedStyle(this.nodeContainer).getPropertyValue("width").slice(0, -2));
     this.initialLeftMargin = (containerWidth - graphWidth) / 2;
   }
 
@@ -73,14 +85,14 @@ export class AnimatorComponent {
   }
 
   restoreOriginalConfiguration() {
-    document.querySelector(".node-ctn").innerHTML = this.originalNodeConfiguration;
+    // document.querySelector(".fixed-ctn").innerHTML = this.originalNodesConfiguration;
   }
 
-  swap = (index1: string, index2: string) => {
+  swap = (index1: number, index2: number) => {
     const node1 = document.querySelector(`.node[data-index="${index1}"]`) as HTMLElement;
     const node2 = document.querySelector(`.node[data-index="${index2}"]`) as HTMLElement;
-    node1.dataset.index = index2;
-    node2.dataset.index = index1;
+    node1.dataset.index = String(index2);
+    node2.dataset.index = String(index1);
     // this.swapProperty(node1, node2, "top");
     this.swapProperty(node1, node2, "left");
   }

@@ -1,17 +1,17 @@
-<div class="fixed-ctn"
+<div [ngClass]="['fixed-ctn', 
+                 dragging ? 'close-hand' : '']"
     (mousewheel)="showVal($event)" 
     (mousedown)="setDragging(true, $event)"
     (mousemove)="shiftGraph($event)" 
     (mouseup)="setDragging(false)"
+
 >
     <div *ngIf="grapher"
-         [ngClass]="[grapher.getDataStructure() | lowercase, 
-                     dragging ? 'close-hand' : '', 
-                     'node-ctn']" 
+         class="node-ctn" 
          [ngStyle]="{'transform': 'scale(' + scale + ')'}"
     >
-        <div [class]="grapher.getDataStructure() | lowercase">
-            <div *ngFor="let node of grapher.getNodes(); let nodeIndex = index"
+        <div [class]="dataStructure | lowercase">
+            <div *ngFor="let node of nodes; let nodeIndex = index"
                  [attr.data-index]="nodeIndex"
                  [attr.data-value]="node.value"
                  [style]="
@@ -19,7 +19,7 @@
                           'left:' + (nodeIndex * (nodeSize + barsPadding) + initialLeftMargin) + 'px;' +
                           'height:' + (normalisedNodeValue(node.value) * maxBarHeight + minBarHeight) + 'px;'
                          "
-                 [ngClass]="[grapher.getNodeType() | lowercase, 
+                 [ngClass]="[nodeType | lowercase, 
                              node.mode | lowercase,
                              'node']"
             >

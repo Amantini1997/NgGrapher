@@ -1,0 +1,18 @@
+:host > .accordion-container {
+  padding: 0 90px;
+}
+
+:host > .accordion-container .ac {
+  border: none;
+}
+
+:host > .accordion-container .ac-trigger {
+  background-color: #135589;
+  color: #fff;
+  outline: none;
+}
+
+:host > .accordion-container .ac-text {
+  background-color: #ccf0f8;
+}
+/*# sourceMappingURL=instructions-page.component.css.map */

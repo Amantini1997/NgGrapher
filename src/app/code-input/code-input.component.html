@@ -22,11 +22,13 @@
                             (keydown.enter)="addCodeCommentLine(lineCount)" 
                             (keydown.tab)="indentCode(lineCount)"
                             (keydown.shift.tab)="indentCode(lineCount, true)"
-                            [innerHTML]="line.code">
+                            [innerHTML]="line.code"
+                        >
                         </div>
                         <div class="line-comment" contenteditable 
                             [attr.data-placeholder]="COMMENT_PLACEHOLDER"
-                            [innerHTML]="line.comment">
+                            [innerHTML]="line.comment"
+                        >
                         </div>
                     </div>
                     <div class="bin" (click)="deleteCodeCommentLine(lineCount)">
@@ -37,7 +39,12 @@
 
             <div id="lines-table__btn">
                 <button (click)="addCodeCommentLine()">New Line</button> 
-                <button id="display-code__btn" (click)="getCodeED()">Generate Code</button>
+                <button id="display-code__btn" 
+                        (click)="getCodeED()"
+                        [disabled]="!inputValuesIsValid"
+                >
+                    Generate Code
+                </button>
             </div>
         </div>       
     </div>
@@ -47,11 +54,12 @@
         #codeEditor
         id="codeEditor"
         [(ngModel)]="code"
-        [options]="editorOptions">
+        [options]="editorOptions"
+    >
     </ngx-codemirror>
 </div>
 <div class="config-btn">
-    <button (click)="downloadConfig()">Download Configuration</button>
+    <button (click)="downloadConfig()">Save Configuration</button>
     <button (click)="loadConfig()">Load Configuration</button>
     <div>
         <select id="data-structure">
@@ -59,15 +67,24 @@
                 <option>
                     BarPlot
                 </option>
+                <option>
+                    List
+                </option>
             <!-- </optgroup> -->
         </select>
     </div>
     <div>
         <label for="initial-values">Initial Values:</label>
-        <input id="initial-values" type="text" placeholder="e.g. 1, 5, 2, 6, 8, 3">
+        <input id="initial-values" 
+               #initialValues
+               type="text" 
+               placeholder="e.g. 1, 5, 2, 6, 8, 3"
+               (keyup)="validateInitialValues()"
+               [value]="initialValuesAsString"
+        >
     </div>
-    <div>
-        <input id="user-input" type="checkbox">
-        <label for="user-input">Allow User Input</label>
-    </div>
+    <!-- <div>
+        <label for="numerical-input">Input Is Numerical</label>
+        <input id="numerical-input" #numericalInput type="checkbox" checked>
+    </div> -->
 </div>

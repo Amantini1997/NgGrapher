@@ -1,5 +1,5 @@
 <!-- CODE  -->
-<div id="output">
+<!-- <div id="output"> -->
     <div class="code-highlighter">
         <div *ngFor="let codeComment of codeED?.displayable || [CODE_PLACEHOLDER]; let lineIndex=index"
              #executableLine
@@ -9,10 +9,10 @@
              [innerHTML]="codeComment.code">
         </div>
     </div>
+<!-- </div> -->
 
-    <div class="comment-box">
-        {{currentComment || CODE_PLACEHOLDER.comment}}
-    </div>
+<div class="comment-box">
+    {{currentComment || CODE_PLACEHOLDER.comment}}
 </div>
 
 <animator [newGrapher]="grapher"></animator>
@@ -33,7 +33,7 @@
 
         
         <button *ngIf="!animationHasStarted" 
-                [disabled]="!codeED"
+                [disabled]="!codeED || animationHasTerminated"
                 (click)="startAnimation()">
             START
         </button>
@@ -49,7 +49,7 @@
             </ng-template>
         </div>
 
-        <button (click)="reset()" 
+        <button [disabled]="!codeED" (click)="setUpAnimation()" 
         >
         <!-- [disabled]="!animationHasStarted" -->
             RESET

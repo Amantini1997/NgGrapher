@@ -2,7 +2,7 @@ import { Options } from '@angular-slider/ngx-slider';
 import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { AnimatorComponent } from '../animator/animator.component';
 import { CodeComment, CodeED } from '../codeInterfaces';
-import { Grapher, Sorter, NodeType, EdgeType, DataStructure } from '../grapher';
+import { Grapher, Sorter, DataStructure } from '../grapher';
 
 @Component({
   selector: 'code-output',
@@ -18,14 +18,14 @@ export class CodeOutputComponent {
   set newCodeED(codeED: CodeED) {
     if(!codeED) return;
     this.codeED = codeED;
-    this.buildInitialGraph();
+    this.setUpAnimation();
   }
 
   readonly GeneratorFunction = Object.getPrototypeOf(function*(){}).constructor;
-  readonly value: number = 2550;
+  readonly value: number = 1000;
   readonly options: Options = {
       floor: 100,
-      ceil: 5000
+      ceil: 2500
   };
   readonly CODE_PLACEHOLDER: CodeComment = {
     code: "Code will appear here",
@@ -36,6 +36,7 @@ export class CodeOutputComponent {
   currentComment: string;
   animationHasStarted: boolean = false; 
   animationIsPaused: boolean = false;
+  animationHasTerminated: boolean = false;
   animation: any;
   userInput: string[];
   grapher: Grapher;
@@ -44,14 +45,24 @@ export class CodeOutputComponent {
   constructor() { }
 
   buildInitialGraph() {
-    this.grapher = new Sorter(this.codeED.initialValues);
+    const initialValuesAsNumbers = this.codeED.initialValues;
+    this.grapher = new Sorter(initialValuesAsNumbers);
     // TODO Implement buildGraph
     //// this.grapher.buildGraph();
   }
 
+  // return dynamic code scoped into a try and catch block
+  tryCatchCode(code: string): string {
+    return `try {${code}} catch(e) { grapher._printError(e) }`;
+  }
+
   generateJsFunctionFromCode(): Generator {
     const executableCode = this.codeED.executable;
-    return new this.GeneratorFunction("grapher", executableCode)(this.grapher);
+    try {
+      return new this.GeneratorFunction("grapher", this.tryCatchCode(executableCode))(this.grapher);
+    } catch(error) {
+      console.error("Syntax Error")
+    }
   } 
   
   hiLine(line: any) {
@@ -63,14 +74,17 @@ export class CodeOutputComponent {
     this.currentComment = comment;
   }
 
-  restoreOriginalConfiguration() {
-    this.animator.restoreOriginalConfiguration();
+  setUpAnimation() {
+    this.clearAnimation();
+    this.restoreOriginalConfiguration();
   }
 
-  reset(restoreOriginalConfiguration: boolean = true) {
-    if (restoreOriginalConfiguration) {
-      this.restoreOriginalConfiguration();
-    }
+  restoreOriginalConfiguration() {
+    this.buildInitialGraph();
+    this.animationHasTerminated = false;
+  }
+
+  clearAnimation() {
     this.animationIsPaused = false;
     this.animationHasStarted = false;
     this.currentLine = null;
@@ -88,7 +102,8 @@ export class CodeOutputComponent {
     let waitingInterval: number;
     if (line.done) {
       // generator is done
-      this.reset(false);
+      this.clearAnimation();
+      this.animationHasTerminated = true;
       return;
     } 
     
@@ -99,7 +114,7 @@ export class CodeOutputComponent {
       // animation is running
       this.hiLine(line.value);
       line = iter.next();
-      waitingInterval = +this.delay.nativeElement.innerHTML;
+      waitingInterval = Number(this.delay.nativeElement.innerHTML);
     }
 
     this.animation = setTimeout(this.animationInterval, waitingInterval, iter, line);
@@ -110,7 +125,7 @@ export class CodeOutputComponent {
   }
 
   appendElement() {
-    const structure = this.grapher.getDataStructure()
+    const structure = this.grapher.getDataStructure();
     switch(structure) {
       case DataStructure.BarPlot: {
 

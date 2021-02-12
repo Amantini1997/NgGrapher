@@ -133,6 +133,12 @@ $editor-width: 55%;
                 
                 &__btn {
                     @extend .btn-list;
+
+                    &:disabled {
+                        cursor: not-allowed;
+                        background-color: $gray2;
+                        color: $gray1;
+                    }
                 } 
             } 
         }
@@ -151,6 +157,16 @@ $editor-width: 55%;
         & label {
             color: $white;
             padding: auto 5px;
+            margin-right: 3px;
+        }
+
+        & input {
+            padding-left: 2px;
+            outline-color: $color3;
+
+            &.wrong {
+                outline-color: $error;
+            }
         }
     }
 }
