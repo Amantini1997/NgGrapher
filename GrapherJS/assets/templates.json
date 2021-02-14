@@ -1,0 +1,12 @@
+{
+    "list": {
+        "array": "array.json",
+        "bubbleSort": "bubbleSort.json"
+    },
+    "tree": {
+        "binary tree": "binaryTree.json"
+    },
+    "barplot": {
+        "barplot": "barplot.json"
+    }  
+  }

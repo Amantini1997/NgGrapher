@@ -4,44 +4,42 @@
 $comment-width: 55%;
 $min-comment-height: 48px;
 
-#output {
-    @extend .flex-row;
-    .code-highlighter {
-        font-family: 'Fira Code', monospace;
-        width: 100% - $comment-width;
-        
-        & > * {
-            display: flex;
-            justify-content: left;
-            align-items: center;
-            background-color:$gray4;
-            color: $white;
-            border: solid 1px $white;
-            min-height: 30px;
-            padding-left: 5px;
+.code-highlighter {
+    @extend .flex-col;
+    font-family: 'Fira Code', monospace;
+    width: 100%;
+    
+    & > * {
+        display: flex;
+        justify-content: left;
+        align-items: center;
+        background-color:$gray4;
+        color: $white;
+        border: solid 1px $white;
+        min-height: 30px;
+        padding-left: 5px;
 
-            &:only-of-type {
-                min-height: $min-comment-height;
-            }
-            
-            &.highlight {
-                background-color: $color3;
-                color: $white;
-            }
+        &:only-of-type {
+            min-height: $min-comment-height;
+        }
+        
+        &.highlight {
+            background-color: $color3;
+            color: $white;
         }
     }
+}
 
-    .comment-box {
-        @extend .flex-row;
-        @extend .flex-center;
-        width: $comment-width;
-        min-height: $min-comment-height;
-        // display: block;
-        // margin: auto;
-        padding: 10px;
-        border: solid 2px $white;
-        background-color: $color2;
-    }
+.comment-box {
+    @extend .flex-row;
+    @extend .flex-center;
+    width: $comment-width;
+    min-height: $min-comment-height;
+    // display: block;
+    // margin: auto;
+    padding: 10px;
+    border: solid 2px $white;
+    background-color: $color2;
 }
 
 #player { 
