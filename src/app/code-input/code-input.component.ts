@@ -125,7 +125,7 @@ yield 2
   }
 
   focusOnLine(lineIndex: number) {
-    (<HTMLElement>document.querySelector(`.line-code-${lineIndex}`)).focus();
+    (document.querySelector(`.line-code-${lineIndex}`) as HTMLElement).focus();
   }
 
   indentCode(lineIndex: number, inverse=false) {
@@ -161,7 +161,7 @@ yield 2
     const executableCode = this.getExecutableCode();
     const filteredDisplayableCode = this.getFilteredDisplayableCode();
     const initialValues = this.getInitialValues();
-    const dataStructureName = (<HTMLSelectElement> document.getElementById("data-structure")).value;
+    const dataStructureName = (document.getElementById("data-structure") as HTMLSelectElement).value;
     const dataStructure = DataStructure[dataStructureName];
     const nodeType = getNodeFromDataStructure(dataStructure);
     const config: CodeED = {
@@ -178,8 +178,8 @@ yield 2
     if (!this.inputValuesIsValid) {
       throw("The input values are not valid, please fix them and try again");
     }
-    // const castToNumber = (<HTMLInputElement> this.numericalInput.nativeElement).checked;
-    const valuesAsString = (<HTMLInputElement> this.initialValuesInput.nativeElement).value;
+    // const castToNumber = (this.numericalInput.nativeElement as HTMLInputElement).checked;
+    const valuesAsString = (this.initialValuesInput.nativeElement as HTMLInputElement).value;
     let valuesAsArray = valuesAsString.split(",")
                                       .map(value => value.trim())
                                       .map(Number);
@@ -227,7 +227,7 @@ yield 2
   }
 
   validateInitialValues(inputValues: string = null) {
-    const initialValuesInput = <HTMLInputElement> this.initialValuesInput.nativeElement;
+    const initialValuesInput = this.initialValuesInput.nativeElement as HTMLInputElement;
     inputValues = inputValues || initialValuesInput.value;
     const dataIsValid = this.NUMERICAL_INPUT_REGEX.test(inputValues);
     if(dataIsValid) {

@@ -63,6 +63,8 @@ export class AnimatorComponent {
     this.cdRef.detectChanges();
     this.buildGraph();
   }
+  
+  constructor(private cdRef: ChangeDetectorRef) { }
 
   buildGraph() {
     if (!this.nodeContainer) {
@@ -86,8 +88,6 @@ export class AnimatorComponent {
     }
     this.centerNodes();
   }
-  
-  constructor(private cdRef: ChangeDetectorRef) { }
 
   adjustBarsHeight() {
     this.normaliseBarsHeight();
@@ -95,7 +95,6 @@ export class AnimatorComponent {
   }
 
   refreshGraph = (nodeWasAdded: boolean) => {
-    this.nodes = this.grapher.getNodes();
     if (this.dataStructure == DataStructure.BarPlot) {
       this.adjustBarsHeight();
     }
@@ -106,14 +105,16 @@ export class AnimatorComponent {
   }
 
   normaliseBarsHeight() {
-    const values = this.nodes.map(node => node.value);
+    // used to set the height of barplot bars with respect
+    // to their values
+    const values = this.nodes.map(node => node.value) as number[];
     let minValue = Math.min(...values);
     minValue = (minValue > 0) ? 0 : minValue;
     const maxValue = Math.abs(Math.max(...values));
     const deltaMinMax = maxValue - minValue;
 
     this.nodes.forEach(node => {
-      node.height = (node.value - minValue) / deltaMinMax * this.MAX_BAR_HEIGHT + this.MIN_BAR_HEIGHT;
+      node.height = (node.value as number - minValue) / deltaMinMax * this.MAX_BAR_HEIGHT + this.MIN_BAR_HEIGHT;
     });
   }
 
@@ -166,10 +167,6 @@ export class AnimatorComponent {
     if (!updated) {
       console.log("CANNOT SCALE ANYMORE");
     }
-  }
-
-  getNonEmptyNodes(): Node[] {
-    return this.grapher.getNodes().filter(node => node);
   }
 
   getZoomDirection({deltaY}): 1|-1 {

@@ -91,7 +91,7 @@ class Grapher {
             id: this.lastIndex++,
             value: value,
             mode: NodeSelectionMode.None,
-            height: 0,
+            height: null,
             left: null,
             HEXColor: this.DEFAULT_HEX_COLOR
         }
@@ -197,6 +197,8 @@ class Grapher {
 
     swap(index1: number, index2: number) {
         [this.nodes[index1], this.nodes[index2]] = [this.nodes[index2], this.nodes[index1]];
+        this.refreshGraph();
+        [this.nodes[index1].left, this.nodes[index2].left] = [this.nodes[index2].left, this.nodes[index1].left];
         this.refreshGraph(true);
     }
 
