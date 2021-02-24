@@ -1,9 +1,8 @@
 import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
 import { CodeComment, CodeED } from '../codeInterfaces';
-import { DataStructure, NodeType } from '../grapher';
+import { DataStructure, NodeType, getNodeFromDataStructure } from '../grapher';
 
 import bubbleSort from '../../assets/templates/bubbleSort.json';
-import { throws } from 'assert';
 
 @Component({
   selector: 'code-input',
@@ -162,13 +161,15 @@ yield 2
     const executableCode = this.getExecutableCode();
     const filteredDisplayableCode = this.getFilteredDisplayableCode();
     const initialValues = this.getInitialValues();
+    const dataStructureName = (<HTMLSelectElement> document.getElementById("data-structure")).value;
+    const dataStructure = DataStructure[dataStructureName];
+    const nodeType = getNodeFromDataStructure(dataStructure);
     const config: CodeED = {
       executable: executableCode,
       displayable: filteredDisplayableCode,
       initialValues: initialValues,
-      // TODO make these dynamic
-      nodeType: NodeType.Bar,
-      structure: DataStructure.BarPlot
+      structure: dataStructure,
+      nodeType: nodeType
     };
     return config;
   }

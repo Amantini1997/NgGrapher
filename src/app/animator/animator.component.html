@@ -12,13 +12,16 @@
     >
         <div [class]="dataStructure | lowercase">
             <div *ngFor="let node of nodes; let nodeIndex = index"
+                 [id]="'node-' + node.id"
                  [attr.data-index]="nodeIndex"
                  [attr.data-value]="node.value"
-                 [style]="
-                          'bottom:' + initialBottomMargin + 'px;' +
-                          'left:' + (nodeIndex * (nodeSize + barsPadding) + initialLeftMargin) + 'px;' +
-                          'height:' + (normalisedNodeValue(node.value) * maxBarHeight + minBarHeight) + 'px;'
-                         "
+
+                 [style.bottom.px]="graphBottomMargin"
+                 [style.height.px]="node.height"
+                 [style.left.px]="node.left"
+                 [style.--mode-color]="node.HEXColor"
+                 [style.--duration]="this.duration"
+                 
                  [ngClass]="[nodeType | lowercase, 
                              node.mode | lowercase,
                              'node']"

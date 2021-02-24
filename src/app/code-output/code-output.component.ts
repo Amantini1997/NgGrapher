@@ -1,8 +1,8 @@
 import { Options } from '@angular-slider/ngx-slider';
 import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { AnimatorComponent } from '../animator/animator.component';
+// import { AnimatorComponent } from '../animator/animator.component';
 import { CodeComment, CodeED } from '../codeInterfaces';
-import { Grapher, Sorter, DataStructure } from '../grapher';
+import { Grapher, DataStructure } from '../grapher';
 
 @Component({
   selector: 'code-output',
@@ -13,12 +13,28 @@ export class CodeOutputComponent {
 
   @ViewChildren("executableLine") executableLines: QueryList<HTMLDivElement>;
   @ViewChild("delay", {read: ElementRef}) delay: ElementRef;
-  @ViewChild(AnimatorComponent) animator: AnimatorComponent;
   @Input() 
   set newCodeED(codeED: CodeED) {
     if(!codeED) return;
-    this.codeED = codeED;
-    this.setUpAnimation();
+
+    // Check syntax validity of the dynamic code 
+    try {
+      this.codeED = codeED;
+      this.setUpAnimation();
+      this.GeneratorFunction("grapher", this.tryCatchCode(codeED.executable))(this.grapher);
+    } catch(error) {
+      this.codeED = null;
+      const errorWindow = window.open("", "", "width=1000, height=400");
+      const errorWindowBody = `
+      <h2>Syntax Error</h2> 
+      <br>
+      There is a syntax error in your input code. Please fix it
+      before proceeding with the creation of the animation. 
+      <br>
+      <hr>
+      ${error}`;
+      errorWindow.document.body.innerHTML = errorWindowBody;
+    }
   }
 
   readonly GeneratorFunction = Object.getPrototypeOf(function*(){}).constructor;
@@ -45,10 +61,17 @@ export class CodeOutputComponent {
   constructor() { }
 
   buildInitialGraph() {
-    const initialValuesAsNumbers = this.codeED.initialValues;
-    this.grapher = new Sorter(initialValuesAsNumbers);
-    // TODO Implement buildGraph
-    //// this.grapher.buildGraph();
+    if (this.codeED.structure == DataStructure.BarPlot) {
+      //TODO check inputs are numerical
+      // this.codeED.initialValues
+    }
+    const {
+      initialValues,
+      nodeType, 
+      structure
+    } = this.codeED;
+    this.grapher = new Grapher(nodeType, structure, initialValues);
+    // this.grapher = new Sorter(initialValuesAsNumbers);
   }
 
   // return dynamic code scoped into a try and catch block
@@ -58,11 +81,7 @@ export class CodeOutputComponent {
 
   generateJsFunctionFromCode(): Generator {
     const executableCode = this.codeED.executable;
-    try {
-      return new this.GeneratorFunction("grapher", this.tryCatchCode(executableCode))(this.grapher);
-    } catch(error) {
-      console.error("Syntax Error")
-    }
+    return new this.GeneratorFunction("grapher", this.tryCatchCode(executableCode))(this.grapher);
   } 
   
   hiLine(line: any) {

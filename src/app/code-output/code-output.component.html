@@ -1,21 +1,19 @@
 <!-- CODE  -->
-<!-- <div id="output"> -->
-    <div class="code-highlighter">
-        <div *ngFor="let codeComment of codeED?.displayable || [CODE_PLACEHOLDER]; let lineIndex=index"
-             #executableLine
-             [class.highlight]="lineIndex === currentLine"
-             [attr.data-comment]="codeComment.comment"
-             [attr.data-lineIndex]="lineIndex"
-             [innerHTML]="codeComment.code">
-        </div>
+<div class="code-highlighter">
+    <div *ngFor="let codeComment of codeED?.displayable || [CODE_PLACEHOLDER]; let lineIndex=index"
+         #executableLine
+         [class.highlight]="lineIndex === currentLine"
+         [attr.data-comment]="codeComment.comment"
+         [attr.data-lineIndex]="lineIndex"
+         [innerHTML]="codeComment.code">
     </div>
-<!-- </div> -->
+</div>
+
+<animator [newGrapher]="grapher" [newSpeed]="slider.value"></animator>
 
 <div class="comment-box">
     {{currentComment || CODE_PLACEHOLDER.comment}}
 </div>
-
-<animator [newGrapher]="grapher"></animator>
 
 <div id="player">
     <div>

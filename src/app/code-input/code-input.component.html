@@ -1,4 +1,14 @@
 <div class="code">
+
+    <!-- Monaco Code Editor -->
+    <ngx-codemirror
+        #codeEditor
+        id="codeEditor"
+        [(ngModel)]="code"
+        [options]="editorOptions"
+    >
+    </ngx-codemirror>
+    
     <!-- Code to be disaplyed -->
     <div id="display-code">
         <div id="lines-table">
@@ -48,20 +58,9 @@
             </div>
         </div>       
     </div>
-
-    <!-- Monaco Code Editor -->
-    <ngx-codemirror
-        #codeEditor
-        id="codeEditor"
-        [(ngModel)]="code"
-        [options]="editorOptions"
-    >
-    </ngx-codemirror>
 </div>
 <div class="config-btn">
-    <button (click)="downloadConfig()">Save Configuration</button>
-    <button (click)="loadConfig()">Load Configuration</button>
-    <div>
+    <!-- <div> -->
         <select id="data-structure">
             <!-- <optgroup> -->
                 <option>
@@ -72,7 +71,7 @@
                 </option>
             <!-- </optgroup> -->
         </select>
-    </div>
+    <!-- </div> -->
     <div>
         <label for="initial-values">Initial Values:</label>
         <input id="initial-values" 
@@ -83,6 +82,8 @@
                [value]="initialValuesAsString"
         >
     </div>
+    <button (click)="downloadConfig()">Save Configuration</button>
+    <button (click)="loadConfig()">Load Configuration</button>
     <!-- <div>
         <label for="numerical-input">Input Is Numerical</label>
         <input id="numerical-input" #numericalInput type="checkbox" checked>

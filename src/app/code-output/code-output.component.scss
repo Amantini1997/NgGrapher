@@ -4,6 +4,11 @@
 $comment-width: 55%;
 $min-comment-height: 48px;
 
+:host {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
 .code-highlighter {
     @extend .flex-col;
     font-family: 'Fira Code', monospace;
@@ -13,7 +18,7 @@ $min-comment-height: 48px;
         display: flex;
         justify-content: left;
         align-items: center;
-        background-color:$gray4;
+        background-color: $gray4;
         color: $white;
         border: solid 1px $white;
         min-height: 30px;
@@ -33,7 +38,7 @@ $min-comment-height: 48px;
 .comment-box {
     @extend .flex-row;
     @extend .flex-center;
-    width: $comment-width;
+    // width: $comment-width;
     min-height: $min-comment-height;
     // display: block;
     // margin: auto;
@@ -58,10 +63,6 @@ $min-comment-height: 48px;
         border-radius: 10px;
         box-shadow: 1px 7px 20px -7px $box-shadow-color;
         transition: all .2s;
-
-        &:hover {
-            $box-shadow-color: $color4;
-        }
     }
 
     & button {

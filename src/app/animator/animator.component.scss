@@ -40,28 +40,18 @@ $nodeSize: 30px;
             width: $nodeSize;
             height: $nodeSize;
             border: solid 1px $black;
-            transition: all .3s;
+            transition: all;
+            transition-duration: var(--duration);
             text-align: center;
             position: absolute;
             transform-origin: $origin;
-
-            // !DO NOT replace with SCSS variable $color5
-            --mode-color: #135589;
-
-            &.selected {
-                --mode-color: green;
-            }
-
-            &.compared {
-                --mode-color: pink;
-            }
 
             &.circle {
                 border-radius: 50%;
             }
         
             &.square {
-        
+                border: solid 3px var(--mode-color);
             }
         
             &.bar {
