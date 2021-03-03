@@ -1,8 +1,11 @@
 import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
-import { CodeComment, CodeED } from '../codeInterfaces';
-import { DataStructure, NodeType, getNodeFromDataStructure } from '../grapher';
+import { CodeComment, CodeED } from '../interfaces/codeInterfaces';
+import { DataStructure, getNodeFromDataStructure } from '../grapher';
 
-import bubbleSort from '../../assets/templates/bubbleSort.json';
+import "codemirror/addon/hint/show-hint";
+import "codemirror/addon/hint/javascript-hint";
+
+import queue from '../../assets/templates/queue.json';
 
 @Component({
   selector: 'code-input',
@@ -18,17 +21,20 @@ export class CodeInputComponent {
 
   readonly CODE_PLACEHOLDER = "insert code here";
   readonly COMMENT_PLACEHOLDER = "insert comment here";
-  readonly DEFAULT_INITIAL_VALUES = [9, 1, 5, 7, 2, 4, 3]; 
-  readonly NUMERICAL_INPUT_REGEX = /^\d+(\.\d){0,1}(\s*\,\s*\d+(\.\d){0,1})*\s*$/;
+  // readonly NUMERICAL_SERIES_INPUT_REGEX = /^\d+(\.\d){0,1}(\s*\,\s*\d+(\.\d){0,1})*\s*$/;
 
   readonly editorOptions = {
     mode:  "javascript",
     lineNumbers: true,
-    theme: 'material'
+    theme: 'material',
+    autoCloseTags: true,
+    lineWrapping: true,
+    smartIndent: true,
+    extraKeys: {'Ctrl-Space': 'autocomplete'}
   };
   readonly EDITOR_HEIGHT = "450px";
 
-  inputValuesIsValid: boolean = false;
+  // inputValuesIsValid: boolean = false;
   initialValuesAsString: string = "";
 
   code: string = `/** 
@@ -108,6 +114,12 @@ yield 2
   // Correctly set the size of the code editor
   ngAfterViewInit() {
     this.codeEditor.codeMirror.setSize(null, this.EDITOR_HEIGHT);
+    this.codeEditor.codeMirror.on("keyup", function (cm, event) {
+      if (!cm.state.completionActive && /*Enables keyboard navigation in autocomplete list*/
+          event.keyCode != 13) {        /*Enter - do not open autocomplete list just after item has been selected in it*/ 
+            this.codeEditor.codeMirror.commands.autocomplete(cm, null, {completeSingle: false});
+      }
+  });
   }
 
   deleteCodeCommentLine(lineIndex: number) {
@@ -168,25 +180,21 @@ yield 2
       executable: executableCode,
       displayable: filteredDisplayableCode,
       initialValues: initialValues,
-      structure: dataStructure,
+      dataStructure: dataStructure,
       nodeType: nodeType
     };
     return config;
   }
 
   getInitialValues(): any[] {
-    if (!this.inputValuesIsValid) {
-      throw("The input values are not valid, please fix them and try again");
-    }
-    // const castToNumber = (this.numericalInput.nativeElement as HTMLInputElement).checked;
+    // if (!this.inputValuesIsValid) {
+    //   throw("The input values are not valid, please fix them and try again");
+    // }
     const valuesAsString = (this.initialValuesInput.nativeElement as HTMLInputElement).value;
     let valuesAsArray = valuesAsString.split(",")
                                       .map(value => value.trim())
                                       .map(Number);
-    // } else {
-    //   valuesAsArray.map(value => "\"" + value + "\"");
-    // }
-    return valuesAsArray || this.DEFAULT_INITIAL_VALUES;
+    return valuesAsArray || [];
   }
 
   getCodeED() {
@@ -226,17 +234,18 @@ yield 2
     return code !== "";
   }
 
-  validateInitialValues(inputValues: string = null) {
-    const initialValuesInput = this.initialValuesInput.nativeElement as HTMLInputElement;
-    inputValues = inputValues || initialValuesInput.value;
-    const dataIsValid = this.NUMERICAL_INPUT_REGEX.test(inputValues);
-    if(dataIsValid) {
-      initialValuesInput.classList.remove("wrong");
-    } else {
-      initialValuesInput.classList.add("wrong");
-    }
-    this.inputValuesIsValid = dataIsValid;
-  }
+  // validateInitialValues(inputValues: string = null) {
+  //   readonly NUMERICAL_SERIES_INPUT_REGEX = /^\d+(\.\d){0,1}(\s*\,\s*\d+(\.\d){0,1})*\s*$/;
+  //   const initialValuesInput = this.initialValuesInput.nativeElement as HTMLInputElement;
+  //   inputValues = inputValues || initialValuesInput.value;
+  //   const dataIsValid = this.NUMERICAL_SERIES_INPUT_REGEX.test(inputValues);
+  //   if(dataIsValid) {
+  //     initialValuesInput.classList.remove("wrong");
+  //   } else {
+  //     initialValuesInput.classList.add("wrong");
+  //   }
+  //   this.inputValuesIsValid = dataIsValid;
+  // }
 
   getExecutableCode(): string {
     const editor = this.codeEditor.codeMirror;
@@ -249,36 +258,36 @@ yield 2
     return executableCode;
   }
   
-  removeCommentLines(code: string): string[] {
-    // remove comments from code
-    const SINGLE_LINE_COMMENT = "//";
-    const MULTIPLE_LINE_COMMENT_OPEN = "/*";
-    const MULTIPLE_LINE_COMMENT_CLOSE = "*/";
-    let isMultipleLineComment = false;
-    let uncommentedCode = [];
-    const lines = code.split("\n");
-    for(let line of lines) {
-      const trimmedLine = line.trim();
-      // line is the start of a multiple line comment
-      if (trimmedLine.startsWith(MULTIPLE_LINE_COMMENT_OPEN)) {
-        isMultipleLineComment = true;
-      }
-      // line is a comment
-      if (isMultipleLineComment || trimmedLine.startsWith(SINGLE_LINE_COMMENT)) {
-        // line is the end of a multiple line comment
-        if (trimmedLine.endsWith(MULTIPLE_LINE_COMMENT_CLOSE)) {
-          isMultipleLineComment = false;
-        }
-        continue;
-      }
-      // remove empty lines
-      if (trimmedLine === "") {
-        continue;
-      }
-      uncommentedCode.push(line);
-    }
-    return uncommentedCode;
-  }
+  // removeCommentLines(code: string): string[] {
+  //   // remove comments from code
+  //   const SINGLE_LINE_COMMENT = "//";
+  //   const MULTIPLE_LINE_COMMENT_OPEN = "/*";
+  //   const MULTIPLE_LINE_COMMENT_CLOSE = "*/";
+  //   let isMultipleLineComment = false;
+  //   let uncommentedCode = [];
+  //   const lines = code.split("\n");
+  //   for(let line of lines) {
+  //     const trimmedLine = line.trim();
+  //     // line is the start of a multiple line comment
+  //     if (trimmedLine.startsWith(MULTIPLE_LINE_COMMENT_OPEN)) {
+  //       isMultipleLineComment = true;
+  //     }
+  //     // line is a comment
+  //     if (isMultipleLineComment || trimmedLine.startsWith(SINGLE_LINE_COMMENT)) {
+  //       // line is the end of a multiple line comment
+  //       if (trimmedLine.endsWith(MULTIPLE_LINE_COMMENT_CLOSE)) {
+  //         isMultipleLineComment = false;
+  //       }
+  //       continue;
+  //     }
+  //     // remove empty lines
+  //     if (trimmedLine === "") {
+  //       continue;
+  //     }
+  //     uncommentedCode.push(line);
+  //   }
+  //   return uncommentedCode;
+  // }
 
   downloadConfig() {
     const config = this.getConfig();
@@ -292,11 +301,11 @@ yield 2
   loadConfig() {
     // TODO make this dynamic
     // const config = JSON.parse("file")   
-    let config = bubbleSort; 
+    let config = queue; 
     this.code = config.executable
     this.lines = config.displayable;  
     this.initialValuesAsString = config.initialValues.join(", "); 
-    this.validateInitialValues(this.initialValuesAsString);
+    // this.validateInitialValues(this.initialValuesAsString);
   }
 }
 

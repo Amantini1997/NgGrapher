@@ -8,17 +8,20 @@ import { DataStructure, Grapher, NodeType, Node } from '../grapher';
 })
 export class AnimatorComponent {
 
+  // grapher variables
   grapher: Grapher;
   nodes: Node[];
   dataStructure: DataStructure;
   nodeType: NodeType;
 
+  // slider variables
   duration: string;
   delay: string;
   readonly MILLISECONDS_TO_SECONDS: number = 0.001;
   readonly SPEED_DURATION_RATIO: number = 3/5 * this.MILLISECONDS_TO_SECONDS;
   readonly SPEED_DELAY_RATIO: number = 1/5 * this.MILLISECONDS_TO_SECONDS;
 
+  // animator variables
   scale: number = 1;
   dragging: boolean;
   startingX: number;
@@ -28,6 +31,7 @@ export class AnimatorComponent {
   newDeltaX: number = 0;
   newDeltaY: number = 0;
 
+  // animator grapher-dependant variables
   graphLeftMargin: number = 0;
   graphBottomMargin: number = 40;
   nodeContainer: HTMLElement;
@@ -36,12 +40,12 @@ export class AnimatorComponent {
   fixedValues: string;
   readonly NODE_WIDTH: number = 30;
 
-  // used for barPlots UI
+  // barPlots UI
   readonly MIN_BAR_HEIGHT: number = 5;
   readonly MAX_BAR_HEIGHT: number = 200;
   readonly BAR_PADDING: number = 5;
 
-  // used for list UI
+  // list UI
   readonly SQUARE_PADDING: number = 30;
   readonly SQUARE_HEIGHT: number = this.NODE_WIDTH;
 
@@ -67,26 +71,29 @@ export class AnimatorComponent {
   constructor(private cdRef: ChangeDetectorRef) { }
 
   buildGraph() {
-    if (!this.nodeContainer) {
-      this.nodeContainer = document.querySelector(".node-ctn");
-    }
-
+    this.setNodeContainerIfUndefined();
     switch(this.dataStructure) {
       case DataStructure.BarPlot:
         this.nodeTypePadding = this.BAR_PADDING;
         this.adjustBarsHeight();
-      break;
+        break;
 
       case DataStructure.List:
         this.nodeTypePadding = this.SQUARE_PADDING;
         this.graphHeight = this.SQUARE_HEIGHT;
-      break;
+        break;
 
       case DataStructure.Tree:
         //TODO implement
-      break;
+        break;
     }
     this.centerNodes();
+  }
+
+  setNodeContainerIfUndefined() {
+    if (!this.nodeContainer) {
+      this.nodeContainer = document.querySelector(".node-ctn");
+    }
   }
 
   adjustBarsHeight() {
@@ -119,7 +126,11 @@ export class AnimatorComponent {
   }
 
   centerNodes() {
-    // set the left margin
+    this.setNodesLeftMargin();
+    this.setNodesBottomMargin();
+  }
+
+  setNodesLeftMargin() {
     const nodesLength = this.nodes.length;
     const graphWidth = this.NODE_WIDTH * nodesLength + this.nodeTypePadding * (nodesLength - 1);
     const containerWidth = Number(getComputedStyle(this.nodeContainer).getPropertyValue("width").slice(0, -2));
@@ -127,33 +138,31 @@ export class AnimatorComponent {
     this.nodes.forEach((node, nodeIndex) => 
       node.left = nodeIndex * (this.NODE_WIDTH + this.nodeTypePadding) + this.graphLeftMargin
     );
-
-    // set the bottom margin
-    const containerHeight = Number(getComputedStyle(this.nodeContainer).getPropertyValue("height").slice(0, -2));
-    this.graphBottomMargin = (containerHeight - this.graphHeight) / 2
   }
 
-  //// swapProperty(element1: HTMLElement, element2: HTMLElement, property: string) {
-  ////   const propertyElement1 = getComputedStyle(element1).getPropertyValue(property);
-  ////   const propertyElement2 = getComputedStyle(element2).getPropertyValue(property);
-  ////   element1.style.setProperty(property, propertyElement2);
-  ////   element2.style.setProperty(property, propertyElement1);
-  //// }
+  setNodesBottomMargin() {
+    const containerHeight = Number(getComputedStyle(this.nodeContainer).getPropertyValue("height").slice(0, -2));
+    this.graphBottomMargin = (containerHeight - this.graphHeight) / 2;
+  }
 
   // if multiplier is set to 0.5, the elements only make 
   // half a shift, and this can be used to insert a node
   // between two other nodes.
   shiftNodeToRight(node: Node) {
-    const HALF_BLOCK = 0.5;
-    node.left += (this.NODE_WIDTH + this.nodeTypePadding) * HALF_BLOCK;
+    this.shiftNode(node, +1);
   }
 
   // if multiplier is set to 0.5, the elements only make 
   // half a shift, and this can be used to insert a node
   // between two other nodes.
   shiftNodeToLeft(node: Node) {
+    this.shiftNode(node, -1);
+  }
+
+  shiftNode(node: Node, shiftDirection: 1 | -1) {
     const HALF_BLOCK = 0.5;
-    node.left -= (this.NODE_WIDTH + this.nodeTypePadding) * HALF_BLOCK;
+    const shiftAmount = (this.NODE_WIDTH + this.nodeTypePadding) * HALF_BLOCK * shiftDirection;
+    node.left += shiftAmount;
   }
 
   showVal(event: WheelEvent) {
@@ -169,11 +178,11 @@ export class AnimatorComponent {
     }
   }
 
-  getZoomDirection({deltaY}): 1|-1 {
+  getZoomDirection({deltaY}: any): 1|-1 {
     return deltaY < 0 ? 1 : -1;
   }
 
-  updateScale({deltaY}): boolean {
+  updateScale({deltaY}: any): boolean {
     const changingFactor = this.getZoomDirection({deltaY}) * 0.1;
     if (this.scale + changingFactor < 0.01) return false; 
     this.scale += changingFactor;
@@ -194,6 +203,8 @@ export class AnimatorComponent {
   }
 
   shiftGraph(event: MouseEvent) {
+    if (!this.grapher) return;
+    
     event.preventDefault();
     if (this.dragging) {
       this.newDeltaX = event.x - this.startingX;

@@ -22,4 +22,8 @@ describe('AnimationPageComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should load selected template', () => {
+
+  });
 });

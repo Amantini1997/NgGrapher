@@ -45,10 +45,6 @@ $nodeSize: 30px;
             text-align: center;
             position: absolute;
             transform-origin: $origin;
-
-            &.circle {
-                border-radius: 50%;
-            }
         
             &.square {
                 border: solid 3px var(--mode-color);

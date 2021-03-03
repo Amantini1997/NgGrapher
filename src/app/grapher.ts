@@ -3,6 +3,8 @@
 // declare type Edge = "None" | "PlainEdge" | "DirectedEdge" | "DoublyDirectedEdge";
 
 import { AnimatorComponent } from "./animator/animator.component";
+import { printRuntimeError } from "./errorGenerator";
+import { DataStructure, Edge, EdgeType, NodeType, NodeValue, NodeSelectionMode, Node } from "./interfaces/grapherInterfaces";
 
 // declare type NodeType = "Circle" | "Square" | "Bar";
 
@@ -11,44 +13,6 @@ import { AnimatorComponent } from "./animator/animator.component";
 // declare type EdgeType = "None" | "SinglePlainEdge" | "SingleDirectedEdge" | "DoubleDirectedEdge"
 
 
-enum NodeType {
-    Circle = "Circle",
-    Square = "Square",
-    Bar = "Bar"
-}
-
-enum DataStructure {
-    Tree = "Tree",
-    List = "List",
-    BarPlot = "BarPlot"
-}
-
-enum EdgeType {
-    None = "None",
-    SinglePlainEdge = "SinglePlainEdge",
-    SingleDirectedEdge = "SingleDirectedEdge",
-    DoubleDirectedEdge = "DoubleDirectedEdge"
-}
-
-declare type Edge = [any, any];
-
-declare type NodeValue = number | string;
-
-enum NodeSelectionMode {
-    None = "None",
-    Selected = "Selected",
-    Compared = "Compared",
-    Custom = "Custom"
-}
-
-interface Node {
-    id: number,
-    value: NodeValue,
-    mode: NodeSelectionMode,    // the mode of the node which affects its colors
-    height: number,             // the height of the node
-    left: number,               // the left-distance from the container
-    HEXColor: string            // the user selected Hexadecimal-like color for Custom mode
-}
 
 function getNodeFromDataStructure(dataStructure: DataStructure): NodeType {
     switch(dataStructure) {
@@ -61,7 +25,7 @@ function getNodeFromDataStructure(dataStructure: DataStructure): NodeType {
 class Grapher {
     private nodeType: NodeType;
     private edgeType: EdgeType;
-    private structure: DataStructure;
+    private dataStructure: DataStructure;
     private nodes: Node[];    
     private edges: Edge[];
     private lastIndex: number = 0;
@@ -75,13 +39,13 @@ class Grapher {
 
     constructor (
         nodeType?: NodeType,
-        structure?: DataStructure,
+        dataStructure?: DataStructure,
         initialValues?: NodeValue[],
         edgeType: EdgeType = EdgeType.None
     ) {
         this._setNodeType(nodeType);
         this._setEdgeType(edgeType);   
-        this._setDataStructure(structure);
+        this._setDataStructure(dataStructure);
         initialValues = initialValues || [];
         this.nodes = initialValues.map(this._newNode) || [];
     }
@@ -158,12 +122,12 @@ class Grapher {
         return this.edges;
     }
 
-    _setDataStructure(structure: DataStructure) {
-        this.structure = structure;
+    _setDataStructure(dataStructure: DataStructure) {
+        this.dataStructure = dataStructure;
     }
 
     getDataStructure(): DataStructure {
-        return this.structure;
+        return this.dataStructure;
     }
 
     getValues(): NodeValue[] {
@@ -264,10 +228,7 @@ class Grapher {
         const error_row_elements = error_row.split(":");
         const col_error = error_row_elements.pop().slice(0, -1);
         const line_error = Number(error_row_elements.pop()) - BOILER_CODE_LENGTH;
-        
-        const errorWindow = window.open("", "Runtime Error", "width=1000, height=400");
-        errorWindow.document.body.innerHTML = `
-            <h2>ERROR</h2>
+        const messageHTML = `
             line: ${line_error}
             <br>
             column: ${col_error}
@@ -276,6 +237,7 @@ class Grapher {
             <hr>
             stack message: ${error.stack.split("\n").map(x => "<br> &nbsp; " + x)}
         `;
+        printRuntimeError(messageHTML);
     }
 
 }

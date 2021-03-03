@@ -51,7 +51,6 @@
                 <button (click)="addCodeCommentLine()">New Line</button> 
                 <button id="display-code__btn" 
                         (click)="getCodeED()"
-                        [disabled]="!inputValuesIsValid"
                 >
                     Generate Code
                 </button>
@@ -78,7 +77,6 @@
                #initialValues
                type="text" 
                placeholder="e.g. 1, 5, 2, 6, 8, 3"
-               (keyup)="validateInitialValues()"
                [value]="initialValuesAsString"
         >
     </div>

@@ -23,3 +23,25 @@ describe('AnimatorComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+
+
+describe('build graph', () =>{
+  it('should define the node container if it is undefined', () => {
+
+  });
+
+  
+  it('should define the node container if it is undefined', () => {
+
+  });
+
+  
+  it('should define the node container if it is undefined', () => {
+
+  });
+
+  
+  it('should define the node container if it is undefined', () => {
+
+  });
+});

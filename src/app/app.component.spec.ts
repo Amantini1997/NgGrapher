@@ -26,10 +26,19 @@ describe('AppComponent', () => {
     expect(app.title).toEqual('GrapherJS');
   });
 
-  it('should render title', () => {
+  it('should render navbar', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement;
-    expect(compiled.querySelector('.content span').textContent).toContain('GrapherJS app is running!');
+    const pagesLinks = compiled.querySelectorAll('ul > li > a');
+    pagesLinks.forEach(link => 
+      expect(link).toContain(capitalise(link.href.split("/").reverse()[0]))
+    );
+    // expect(.textContent).toContain('GrapherJS app is running!');
+    // routerlink="/instructions"
   });
 });
+
+function capitalise(string: string) {
+  return string.charAt(0).toUpperCase() + string.split("").splice(1).join("");
+}

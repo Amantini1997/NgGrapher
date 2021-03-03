@@ -9,6 +9,31 @@ $min-comment-height: 48px;
     grid-template-columns: 1fr 1fr;
 }
 
+.card-shape {
+    @extend .flex-row;
+    $box-shadow-color: $color5;
+    background-color: $white;
+    padding: 10px;
+    border: solid 2px $color5;
+    border-radius: 10px;
+    box-shadow: 1px 7px 20px -7px $box-shadow-color;
+    transition: all .2s;
+}
+
+#user-functions {
+    @extend .card-shape;
+    grid-column: auto / span 2;
+    justify-content: space-around;
+    margin: 10px;
+    align-items: center;
+
+    & * {
+        display: flex;
+        font-weight: 700;
+        font-size: x-large;
+    }
+}
+
 .code-highlighter {
     @extend .flex-col;
     font-family: 'Fira Code', monospace;
@@ -38,10 +63,7 @@ $min-comment-height: 48px;
 .comment-box {
     @extend .flex-row;
     @extend .flex-center;
-    // width: $comment-width;
     min-height: $min-comment-height;
-    // display: block;
-    // margin: auto;
     padding: 10px;
     border: solid 2px $white;
     background-color: $color2;
@@ -53,16 +75,9 @@ $min-comment-height: 48px;
     margin-top: 10px;
 
     & > * {
-        @extend .flex-row;
+        @extend .card-shape;
         @extend .flex-center;
-        $box-shadow-color: $color5;
-        background-color: $white;
-        padding: 10px;
         width: 550px;
-        border: solid 2px $color5;
-        border-radius: 10px;
-        box-shadow: 1px 7px 20px -7px $box-shadow-color;
-        transition: all .2s;
     }
 
     & button {

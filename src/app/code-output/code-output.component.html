@@ -1,12 +1,34 @@
 <!-- CODE  -->
+<div id="user-functions" *ngIf="userFunctions">
+    <div *ngFor="let function of userFunctions; 
+         let functionIndex = index"
+         [attr.data-function-index]="functionIndex"
+    >  
+        <button (click)="selectUserFunction(functionIndex)"
+        > 
+        <!-- TODO  Add disabling -->
+            {{function.name}}
+        </button>
+        <input *ngFor="let param of function.params; let paramIndex = index"
+            [placeholder]="param.name"
+            [attr.data-type]="param.type"
+            [attr.data-index]="functionIndex + '-' + paramIndex"
+            (keyup)="validateInput(param.type, functionIndex + '-' + paramIndex)"
+        >  
+    </div> 
+</div>
+
 <div class="code-highlighter">
-    <div *ngFor="let codeComment of codeED?.displayable || [CODE_PLACEHOLDER]; let lineIndex=index"
-         #executableLine
-         [class.highlight]="lineIndex === currentLine"
-         [attr.data-comment]="codeComment.comment"
-         [attr.data-lineIndex]="lineIndex"
-         [innerHTML]="codeComment.code">
-    </div>
+    <ng-container *ngFor="let codeComment of codeED?.displayable || [CODE_PLACEHOLDER]; let lineIndex=index">
+        <div *ngIf="lineIndex >= (currentLinesSelection?.start || -1) && lineIndex <= (currentLinesSelection?.end || -1)"
+             #executableLine
+             [class.highlight]="lineIndex === currentLine"
+             [attr.data-comment]="codeComment.comment"
+             [attr.data-lineIndex]="lineIndex"
+             [innerHTML]="codeComment.code"
+        >
+        </div>
+    </ng-container>
 </div>
 
 <animator [newGrapher]="grapher" [newSpeed]="slider.value"></animator>
@@ -31,7 +53,7 @@
 
         
         <button *ngIf="!animationHasStarted" 
-                [disabled]="!codeED || animationHasTerminated"
+                [disabled]="!codeED || animationHasTerminated || !currentGenerator"
                 (click)="startAnimation()">
             START
         </button>

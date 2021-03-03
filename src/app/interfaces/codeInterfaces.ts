@@ -1,4 +1,4 @@
-import { DataStructure, NodeType } from "./grapher";
+import { DataStructure, NodeType } from "./grapherInterfaces";
 
 export interface CodeComment {
     code: string,
@@ -13,5 +13,5 @@ export interface CodeED {
     displayable: CodeComment[],
     initialValues: any[],
     nodeType: NodeType,
-    structure: DataStructure
+    dataStructure: DataStructure
 }

@@ -1,12 +1,8 @@
 {
-    "list": {
-        "array": "array.json",
-        "bubbleSort": "bubbleSort.json"
+    "Data Structure": {
+        "queue": "queue"
     },
-    "tree": {
-        "binary tree": "binaryTree.json"
-    },
-    "barplot": {
-        "barplot": "barplot.json"
+    "Sorting Algorithm": {
+        "bubble Sort": "bubbleSort"
     }  
   }

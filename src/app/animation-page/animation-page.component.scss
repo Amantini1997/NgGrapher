@@ -5,6 +5,7 @@
     display: block;
     margin: auto;
     margin-top: 20px;
+    margin-bottom: 30px;
     height: 150;
     text-align: center;
     $box-shadow-color: $color5;
@@ -18,5 +19,15 @@
 
     &:hover {
         $box-shadow-color: $color4;
+    }
+
+    & > .confirm-btn {
+        color: $white;
+        background-color: $color5;
+        margin-left: 15px;
+        padding: 5px;
+        padding-left: 15px;
+        padding-right: 15px;
+        font-weight: 600;
     }
 }

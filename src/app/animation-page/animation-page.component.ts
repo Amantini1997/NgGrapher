@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
-import { CodeED } from '../codeInterfaces';
+import { CodeED } from '../interfaces/codeInterfaces';
 import * as templateRaw from '../../assets/templates.json';
+import queue from '../../assets/templates/queue.json';
+import bubbleSort from '../../assets/templates/bubbleSort.json';
 
 @Component({
   templateUrl: './animation-page.component.html',
@@ -10,8 +12,7 @@ export class AnimationPageComponent {
 
   config: CodeED;
   templateOptions: JSON;
-  readonly TEMPLATES_PATH = "/assets/templates/";
-
+  readonly TEMPLATES_PATH = "../../assets/templates/";
 
   constructor() { 
     this.templateOptions = templateRaw.default; 
@@ -28,11 +29,20 @@ export class AnimationPageComponent {
     fileReader.readAsText(loadableFile, "UTF-8");
   }
 
-  async loadTemplateConfig(templatePath: string) {
-    console.log(this.TEMPLATES_PATH + templatePath)
-    await import(this.TEMPLATES_PATH + templatePath).then(config => {
-      console.log(config)
-      this.config = config;
-    });
+  async loadTemplateConfig(template: string) {
+    switch(template) {
+      case "queue":
+        this.config = queue;
+        break;
+
+      case "bubble sort":
+        this.config = bubbleSort;
+        break;
+    }
+    console.log(this.config, queue)
+    // await import(this.TEMPLATES_PATH + templatePath).then(config => {
+    //   console.log(config)
+    //   this.config = config;
+    // });
   }
 }

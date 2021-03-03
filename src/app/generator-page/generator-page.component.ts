@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CodeED } from '../codeInterfaces';
+import { CodeED } from '../interfaces/codeInterfaces';
 
 @Component({
   selector: 'generator-page',
