@@ -4,37 +4,38 @@
          let functionIndex = index"
          [attr.data-function-index]="functionIndex"
     >  
-        <button (click)="selectUserFunction(functionIndex)"
-        > 
-        <!-- TODO  Add disabling -->
-            {{function.name}}
-        </button>
         <input *ngFor="let param of function.params; let paramIndex = index"
             [placeholder]="param.name"
             [attr.data-type]="param.type"
             [attr.data-index]="functionIndex + '-' + paramIndex"
-            (keyup)="validateInput(param.type, functionIndex + '-' + paramIndex)"
+            (keyup)="functionInputsAreValid(functionIndex + '-' + paramIndex)"
         >  
+        <button (click)="selectUserFunction(functionIndex)"
+                [disabled]="!functionInputsAreValid(functionIndex)"
+        > 
+            {{function.name}}
+        </button>
     </div> 
 </div>
 
 <div class="code-highlighter">
-    <ng-container *ngFor="let codeComment of codeED?.displayable || [CODE_PLACEHOLDER]; let lineIndex=index">
+    <ng-container *ngFor="let codeComment of codeED?.displayable; let lineIndex=index">
         <div *ngIf="lineIndex >= (currentLinesSelection?.start || -1) && lineIndex <= (currentLinesSelection?.end || -1)"
              #executableLine
              [class.highlight]="lineIndex === currentLine"
-             [attr.data-comment]="codeComment.comment"
              [attr.data-lineIndex]="lineIndex"
-             [innerHTML]="codeComment.code"
+             [attr.data-comment]="codeComment?.comment"
+             [innerHTML]="codeComment?.code || ''"
+             
         >
         </div>
     </ng-container>
 </div>
 
-<animator [newGrapher]="grapher" [newSpeed]="slider.value"></animator>
+<animator [newGrapher]="grapher" [newSpeed]="slider.value" [title]="currentUserFunction"></animator>
 
 <div class="comment-box">
-    {{currentComment || CODE_PLACEHOLDER.comment}}
+    {{currentComment || ""}}
 </div>
 
 <div id="player">
@@ -53,7 +54,7 @@
 
         
         <button *ngIf="!animationHasStarted" 
-                [disabled]="!codeED || animationHasTerminated || !currentGenerator"
+                [disabled]="!codeED || !currentGenerator"
                 (click)="startAnimation()">
             START
         </button>
@@ -71,7 +72,6 @@
 
         <button [disabled]="!codeED" (click)="setUpAnimation()" 
         >
-        <!-- [disabled]="!animationHasStarted" -->
             RESET
         </button>
     </div>

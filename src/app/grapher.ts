@@ -1,33 +1,19 @@
-// declare type NodeShape = "Circle" | "Square" | "Bar";
-// declare type DataStructure = "Tree" | "List" | "BarPlot";
-// declare type Edge = "None" | "PlainEdge" | "DirectedEdge" | "DoublyDirectedEdge";
-
 import { AnimatorComponent } from "./animator/animator.component";
 import { printRuntimeError } from "./errorGenerator";
-import { DataStructure, Edge, EdgeType, NodeType, NodeValue, NodeSelectionMode, Node } from "./interfaces/grapherInterfaces";
-
-// declare type NodeType = "Circle" | "Square" | "Bar";
-
-// declare type DataStructure = "Tree" | "List" | "BarPlot";
-
-// declare type EdgeType = "None" | "SinglePlainEdge" | "SingleDirectedEdge" | "DoubleDirectedEdge"
-
+import { DataStructure, NodeType, NodeValue, NodeSelectionMode, Node } from "./interfaces/grapherInterfaces";
 
 
 function getNodeFromDataStructure(dataStructure: DataStructure): NodeType {
     switch(dataStructure) {
         case DataStructure.BarPlot: return NodeType.Bar;
         case DataStructure.List: return NodeType.Square;
-        case DataStructure.Tree: return NodeType.Circle;
     }
 }
 
 class Grapher {
     private nodeType: NodeType;
-    private edgeType: EdgeType;
     private dataStructure: DataStructure;
     private nodes: Node[];    
-    private edges: Edge[];
     private lastIndex: number = 0;
     private animator: AnimatorComponent;
     private readonly HEX_REGEX = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
@@ -41,10 +27,8 @@ class Grapher {
         nodeType?: NodeType,
         dataStructure?: DataStructure,
         initialValues?: NodeValue[],
-        edgeType: EdgeType = EdgeType.None
     ) {
-        this._setNodeType(nodeType);
-        this._setEdgeType(edgeType);   
+        this._setNodeType(nodeType);   
         this._setDataStructure(dataStructure);
         initialValues = initialValues || [];
         this.nodes = initialValues.map(this._newNode) || [];
@@ -103,23 +87,11 @@ class Grapher {
             HEXColor = "#" + HEXColor; 
         }
         if (!this.HEX_REGEX.test(HEXColor)) {
-            throw new Error("HEX color not valid");
+            printRuntimeError("HEX color not valid");
         }
         const node = this.nodes[index];
         node.mode = NodeSelectionMode.Custom;
         node.HEXColor = HEXColor;
-    }
-
-    _setEdgeType(edgeType: EdgeType) {
-        this.edgeType = edgeType;
-    }
-
-    getEdgeType(): EdgeType {
-        return this.edgeType;
-    }
-
-    getEdges(): Edge[] {
-        return this.edges;
     }
 
     _setDataStructure(dataStructure: DataStructure) {
@@ -168,6 +140,18 @@ class Grapher {
 
     refreshGraph(nodeWasAdded: boolean = false) {
         this.animator.refreshGraph(nodeWasAdded);
+    }
+
+    appendValues(values: NodeValue[]) {
+        while(values.length > 0){
+            this.push(values.shift());
+        }
+    }
+
+    empty() {
+        while(this.nodes.length > 0){
+            this.pop();
+        }
     }
 
     push(value: NodeValue) {
@@ -242,48 +226,11 @@ class Grapher {
 
 }
 
-class Sorter extends Grapher {
-    constructor(initialValues?: NodeValue[]) {
-        super(
-            NodeType.Bar,
-            DataStructure.BarPlot,
-            initialValues,
-            EdgeType.None
-        );
-    }
-}
-
-class BinaryTree extends Grapher {
-    constructor(initialValues?: NodeValue[]) {
-        super(
-            NodeType.Circle,
-            DataStructure.Tree,
-            initialValues,
-            EdgeType.SinglePlainEdge
-        );
-    }
-}
-
-class List extends Grapher {
-    constructor(initialValues?: NodeValue[]) {
-        super(
-            NodeType.Square,
-            DataStructure.List,
-            initialValues,
-            EdgeType.None
-        );
-    }
-}
-
 export {
     Grapher,
-    Sorter,
-    BinaryTree,
-    List,
     Node,
     NodeType,
     NodeSelectionMode,
-    EdgeType,
     DataStructure,
     getNodeFromDataStructure
 }

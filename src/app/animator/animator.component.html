@@ -1,11 +1,13 @@
+
 <div [ngClass]="['fixed-ctn', 
                  dragging ? 'close-hand' : '']"
-    (mousewheel)="showVal($event)" 
+    (mousewheel)="applyWheelZoom($event)" 
     (mousedown)="setDragging(true, $event)"
     (mousemove)="shiftGraph($event)" 
     (mouseup)="setDragging(false)"
 
 >
+    <div class="title">Function: <b>{{title}}</b></div>
     <div *ngIf="grapher"
          class="node-ctn" 
          [ngStyle]="{'transform': 'scale(' + scale + ')'}"

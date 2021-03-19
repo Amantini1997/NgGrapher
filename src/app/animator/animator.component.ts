@@ -1,4 +1,5 @@
 import { Input, Component, ChangeDetectorRef } from '@angular/core';
+import { interactionError } from '../errorGenerator';
 import { DataStructure, Grapher, NodeType, Node } from '../grapher';
 
 @Component({
@@ -30,6 +31,7 @@ export class AnimatorComponent {
   deltaY: number = 0;
   newDeltaX: number = 0;
   newDeltaY: number = 0;
+  readonly MIN_SCALE: number = 0.01; 
 
   // animator grapher-dependant variables
   graphLeftMargin: number = 0;
@@ -48,6 +50,8 @@ export class AnimatorComponent {
   // list UI
   readonly SQUARE_PADDING: number = 30;
   readonly SQUARE_HEIGHT: number = this.NODE_WIDTH;
+
+  @Input() title: string;
 
   @Input() 
   set newSpeed(speed: number) {
@@ -82,10 +86,6 @@ export class AnimatorComponent {
         this.nodeTypePadding = this.SQUARE_PADDING;
         this.graphHeight = this.SQUARE_HEIGHT;
         break;
-
-      case DataStructure.Tree:
-        //TODO implement
-        break;
     }
     this.centerNodes();
   }
@@ -98,7 +98,8 @@ export class AnimatorComponent {
 
   adjustBarsHeight() {
     this.normaliseBarsHeight();
-    this.graphHeight = Math.max(...this.nodes.map(node => node.height));
+    const nodesHeight = this.nodes.map(node => node.height);
+    this.graphHeight = Math.max(...nodesHeight);
   }
 
   refreshGraph = (nodeWasAdded: boolean) => {
@@ -120,9 +121,9 @@ export class AnimatorComponent {
     const maxValue = Math.abs(Math.max(...values));
     const deltaMinMax = maxValue - minValue;
 
-    this.nodes.forEach(node => {
-      node.height = (node.value as number - minValue) / deltaMinMax * this.MAX_BAR_HEIGHT + this.MIN_BAR_HEIGHT;
-    });
+    this.nodes.forEach(node => 
+      node.height = (node.value as number - minValue) / deltaMinMax * this.MAX_BAR_HEIGHT + this.MIN_BAR_HEIGHT
+    );
   }
 
   centerNodes() {
@@ -145,16 +146,10 @@ export class AnimatorComponent {
     this.graphBottomMargin = (containerHeight - this.graphHeight) / 2;
   }
 
-  // if multiplier is set to 0.5, the elements only make 
-  // half a shift, and this can be used to insert a node
-  // between two other nodes.
   shiftNodeToRight(node: Node) {
     this.shiftNode(node, +1);
   }
 
-  // if multiplier is set to 0.5, the elements only make 
-  // half a shift, and this can be used to insert a node
-  // between two other nodes.
   shiftNodeToLeft(node: Node) {
     this.shiftNode(node, -1);
   }
@@ -165,38 +160,37 @@ export class AnimatorComponent {
     node.left += shiftAmount;
   }
 
-  showVal(event: WheelEvent) {
+  applyWheelZoom(event: WheelEvent) {
+    if (!this.nodeContainer) return;
     event.preventDefault();
-    const origin = this.getOrigin(event);
-    if (!origin) {
-      console.log("TOO MUCH OFFSET");
-      return;
-    }
-    const updated = this.updateScale(event);
-    if (!updated) {
-      console.log("CANNOT SCALE ANYMORE");
-    }
+    // const origin = this.getOrigin(event);
+    // if (!origin) {
+    //   // there is already too much offset
+    //   return;
+    // }
+    this.updateScale(event);
   }
 
-  getZoomDirection({deltaY}: any): 1|-1 {
+  getZoomDirection({deltaY}: any): 1 | -1 {
     return deltaY < 0 ? 1 : -1;
   }
 
   updateScale({deltaY}: any): boolean {
     const changingFactor = this.getZoomDirection({deltaY}) * 0.1;
-    if (this.scale + changingFactor < 0.01) return false; 
-    this.scale += changingFactor;
-    return true;
+    const scaleIsMinScale = this.scale + changingFactor < this.MIN_SCALE;
+    if (!scaleIsMinScale) {
+      this.scale += changingFactor;
+    } 
+    return !scaleIsMinScale;
   }
 
-  getOrigin(event: WheelEvent): [number, number] {
-    // it breaks at some point
-    const bounds = this.nodeContainer.getBoundingClientRect();
-    let x = (event.clientX - bounds.left) * .5;
-    let y = (event.clientY - bounds.top) * .25;
-    if (isNaN(x) || isNaN(y)) return null;
-    return [x, y];
-  }
+  // getOrigin(event: WheelEvent): [number, number] {
+  //   const bounds = this.nodeContainer.getBoundingClientRect();
+  //   let x = (event.clientX - bounds.left) * .5;
+  //   let y = (event.clientY - bounds.top) * .25;
+  //   if (isNaN(x) || isNaN(y)) return null;
+  //   return [x, y];
+  // }
 
   updatePropertyInPx(element: HTMLElement, property: string, delta: number) {
     element.style.setProperty(property, delta + "px");

@@ -22,12 +22,9 @@
     }
 
     & > .confirm-btn {
-        color: $white;
-        background-color: $color5;
-        margin-left: 15px;
-        padding: 5px;
-        padding-left: 15px;
-        padding-right: 15px;
+        @extend .contrast-btn;
         font-weight: 600;
+        margin-left: 15px;
     }
 }
+

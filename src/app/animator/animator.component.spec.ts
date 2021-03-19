@@ -8,7 +8,10 @@ describe('AnimatorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AnimatorComponent ]
+      declarations: [ 
+        AnimatorComponent,
+        
+      ]
     })
     .compileComponents();
   });
@@ -26,22 +29,22 @@ describe('AnimatorComponent', () => {
 
 
 describe('build graph', () =>{
-  it('should define the node container if it is undefined', () => {
+  // it('should define the node container if it is undefined', () => {
 
-  });
-
-  
-  it('should define the node container if it is undefined', () => {
-
-  });
+  // });
 
   
-  it('should define the node container if it is undefined', () => {
+  // it('should define the node container if it is undefined', () => {
 
-  });
+  // });
 
   
-  it('should define the node container if it is undefined', () => {
+  // it('should define the node container if it is undefined', () => {
 
-  });
+  // });
+
+  
+  // it('should define the node container if it is undefined', () => {
+
+  // });
 });

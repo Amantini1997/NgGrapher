@@ -4,7 +4,7 @@
     <ngx-codemirror
         #codeEditor
         id="codeEditor"
-        [(ngModel)]="code"
+        [(ngModel)]="editorCode"
         [options]="editorOptions"
     >
     </ngx-codemirror>
@@ -28,15 +28,13 @@
                     <div class="counter">{{lineCount}}</div>
                     <div class="code-comment-ctn">
                         <div class="line-code-{{lineCount}}" contenteditable 
-                            [attr.data-placeholder]="CODE_PLACEHOLDER"
                             (keydown.enter)="addCodeCommentLine(lineCount)" 
                             (keydown.tab)="indentCode(lineCount)"
                             (keydown.shift.tab)="indentCode(lineCount, true)"
                             [innerHTML]="line.code"
                         >
                         </div>
-                        <div class="line-comment" contenteditable 
-                            [attr.data-placeholder]="COMMENT_PLACEHOLDER"
+                        <div class="line-comment" contenteditable
                             [innerHTML]="line.comment"
                         >
                         </div>
@@ -82,8 +80,4 @@
     </div>
     <button (click)="downloadConfig()">Save Configuration</button>
     <button (click)="loadConfig()">Load Configuration</button>
-    <!-- <div>
-        <label for="numerical-input">Input Is Numerical</label>
-        <input id="numerical-input" #numericalInput type="checkbox" checked>
-    </div> -->
 </div>

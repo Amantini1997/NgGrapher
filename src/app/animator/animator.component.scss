@@ -18,6 +18,18 @@ $nodeSize: 30px;
         cursor: grabbing;
     }
 
+    & > .title {
+        z-index: 11;
+        position: relative;
+        background-color: $white;
+        border-bottom-right-radius: 5px;
+        border-right: solid 1px $black;
+        border-bottom: solid 1px $black;
+        width: fit-content;
+        padding: 10px;
+        font-size: large;
+    }
+
     & > .node-ctn {
         background-color: $ctn-background;
         height: 100%;

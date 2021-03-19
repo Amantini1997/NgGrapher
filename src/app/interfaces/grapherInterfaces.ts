@@ -1,20 +1,11 @@
 enum NodeType {
-    Circle = "Circle",
     Square = "Square",
     Bar = "Bar"
 }
 
 enum DataStructure {
-    Tree = "Tree",
     List = "List",
     BarPlot = "BarPlot"
-}
-
-enum EdgeType {
-    None = "None",
-    SinglePlainEdge = "SinglePlainEdge",
-    SingleDirectedEdge = "SingleDirectedEdge",
-    DoubleDirectedEdge = "DoubleDirectedEdge"
 }
 
 enum NodeSelectionMode {
@@ -23,8 +14,6 @@ enum NodeSelectionMode {
     Compared = "Compared",
     Custom = "Custom"
 }
-
-declare type Edge = [any, any];
 
 declare type NodeValue = number | string;
 
@@ -41,8 +30,6 @@ export {
     NodeType,
     Node,
     NodeValue,
-    EdgeType,
     NodeSelectionMode,
-    Edge,
     DataStructure
 }

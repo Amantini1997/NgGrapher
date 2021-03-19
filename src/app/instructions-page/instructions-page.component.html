@@ -8,7 +8,9 @@
         </h2>
         <div class="ac-panel">
             <p class="ac-text">
-                Grapher.js is a website designed to help students visually learning data structures and algorithms.
+                Grapher.js is a website designed to help students 
+                learn data structures and algorithms via interactive
+                function calls and beautiful animations.
             </p>
         </div>
     </div>
@@ -22,28 +24,57 @@
                 Your teacher should have provided you with a configuration file in format JSON.
                 That file should be used in the <u><b><a routerLink="../animation">Animation Page</a></b></u> to generate the animation.
 
-                Once the configuration is loaded and accepted byt the software, the animation will automatically appear in your screen.
+                To load a configuration you just need to click on the button <i>Choose File</i> and select the file provided to you by your teacher.
+                Once the configuration is loaded and accepted by the software, the animation will automatically appear on your screen.
 
-                To understand what each component does, please refer to the next section. 
+                If your teacher did not provide any files, you can play around with one of those pre-built into Grapher.js. 
+                Again, go the <u><b><a routerLink="../animation">Animation Page</a></b></u>, but this time select a file from the drop-down menu.
+                When you have chose the animation, click the button <i>Confirm</i> and the animation will appear. 
+
+                To interact with the animation, move to the next section <b>Understanding the components</b> which explains what each component does.
             </p>
         </div>
     </div>
 
     <div class="ac">
         <h2 class="ac-header">
-            <button class="ac-trigger">Understanding the components (student)</button>
+            <button class="ac-trigger">Understanding the components</button>
         </h2>
         <div class="ac-panel">
             <div class="ac-text">
-                There are 3 main components in front of you:
-                <ul>
-                    <li><b>Animation section:</b></li> Here you get the chance to understand the mechanism of an algorithm or to see a data structure 
-                    behaves when different methods are called.  
-                    <li><b>Code:</b></li> This part gives you an idea of what line of code corresponds to each operation performed in the animation section. 
-                    Further comments are provided in the the comment box.
-                    <li><b>Player bar:</b></li> This component allows you to directly interact with the animation by starting it, stopping and resuming it, 
-                    and selecting the animation speed.  
-                </ul>
+                Once the animation has been loaded successfully, you should see something similar to this
+                
+                <img src="../../assets/img/App View.jpg.png">
+
+                Two elements are fundamental to understand. The element with the label <b>1</b> is the bar with the
+                methods that you can call to interact with the animation. Some may need you to pass some parameters,
+                such as <i>Enqueue</i>. For these types of methods the input shall be valid in order for the method 
+                to be callable. All the other methods may be called straight away.
+                <br>
+                <br>
+                Once you call a method, this will not start immediately, instead it will be loaded and will start
+                only when you press the button <i>START</i> in the control panel (the element with label <b>2</b>).
+                <br>
+                <br>
+                In the control panel you are provided the buttons to start, stop, and resume the animation. Notice
+                that the button <i>RESET</i> does not replay the last method called, rather, it resets the all animation
+                to the state it was when it was loaded.
+                Within the control panel you also have a slider which controls the speed of the animation. The value 
+                of the slider denotes the delay between one animation step and the next one. To obtain a lower value 
+                you should drag the cursor to the left. Vice versa, dragging it to the right will slow down the animation.
+                <br>
+                <br>
+                The animation takes place in the box located right above the control panel. Although it is not possible
+                to directly interact with the animation (the only way is calling methods and using the elements in the
+                control panel), the content of the animation can be zoomed in or out using the mouse wheel. Also,
+                the animation can be moved by dragging it.
+                <br>
+                <br>                
+                On the left of the animation box is where the code for the animation will be displayed. The currently 
+                executed line of will be highlighted to easily find it.
+                <br>
+                <br>
+                Finally, the comments will appear below the code, inside that dark blue box. 
             </div>
         </div>
     </div>

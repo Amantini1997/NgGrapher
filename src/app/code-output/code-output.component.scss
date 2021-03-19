@@ -27,10 +27,31 @@ $min-comment-height: 48px;
     margin: 10px;
     align-items: center;
 
-    & * {
+    & div {
         display: flex;
-        font-weight: 700;
-        font-size: x-large;
+
+        & > button {
+            @extend .contrast-btn;
+            display: flex;
+            font-weight: 700;
+            font-size: large;
+            
+
+            &:disabled {
+                @extend .disabled-contrast-btn;
+
+            }
+        } 
+
+        & > input + button {
+            border-bottom-left-radius: 0; 
+            border-top-left-radius: 0; 
+        }
+
+        & > input:first-of-type {
+            border-bottom-left-radius: 10px; 
+            border-top-left-radius: 10px; 
+        }
     }
 }
 
@@ -66,7 +87,9 @@ $min-comment-height: 48px;
     min-height: $min-comment-height;
     padding: 10px;
     border: solid 2px $white;
-    background-color: $color2;
+    background-color: $color6;
+    color: $white;
+    font-weight: 600;
 }
 
 #player { 
@@ -81,23 +104,18 @@ $min-comment-height: 48px;
     }
 
     & button {
-        border: 5px;
-        color: $white;
-        background-color: $color5;
-        padding: 10px 15px;
+        @extend .contrast-btn;
         font-size: medium;
         height: 40px;
         width: 75px;
         animation: all .2s;
 
-        &:last-child {
-            margin-left: 10px;
+        &:disabled {
+            @extend .disabled-contrast-btn;
         }
 
-        &:disabled {
-            color: $gray1;
-            background-color: $gray4;
-            cursor: not-allowed;
+        &:last-child {
+            margin-left: 10px;
         }
     }
 

@@ -1,10 +1,10 @@
 import { Options } from '@angular-slider/ngx-slider';
 import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren } from '@angular/core';
 // import { AnimatorComponent } from '../animator/animator.component';
-import { CodeComment, CodeED } from '../interfaces/codeInterfaces';
+import { CodeED } from '../interfaces/codeInterfaces';
 import { DynamicFunction, InputType, LinesSelection, REGEXES } from '../interfaces/dynamicFunctions';
 import { Grapher } from '../grapher';
-import { printSyntaxError } from '../errorGenerator';
+import { printRuntimeError, printSyntaxError } from '../errorGenerator';
 
 @Component({
   selector: 'code-output',
@@ -22,27 +22,24 @@ export class CodeOutputComponent {
       floor: 100,
       ceil: 2500
   };
-  readonly CODE_PLACEHOLDER: CodeComment = {
-    code: "Code will appear here",
-    comment: "Comments will appear here"
-  };
   
   readonly DEFAULT_ANIMATION_WAITING_TIME = 100;
    
   currentLine: number;
-  currentComment: string;
   currentLinesSelection: LinesSelection;
-  currentGenerator: any;
-
+  currentComment: string;
+  currentUserFunction: string;
+  currentGenerator: Generator;
+  
   animationHasStarted: boolean = false; 
   animationIsPaused: boolean = false;
-  animationHasTerminated: boolean = false;
   animation: any;
   grapher: Grapher;
   codeED: CodeED;
   userFunctions: DynamicFunction[];
 
-  
+  constructor() { }
+
   @Input() 
   set newCodeED(codeED: CodeED) {
     if(!codeED) return;
@@ -64,21 +61,27 @@ export class CodeOutputComponent {
     }
   }
 
-  constructor() { }
-
-  setUpAnimation() {
-    this.clearAnimation();
-    this.buildInitialGraph();
-    this.animationHasTerminated = false;
-  }
-
   clearAnimation() {
     this.animationIsPaused = false;
     this.animationHasStarted = false;
     this.currentLine = null;
-    this.currentLinesSelection = null;
     this.currentGenerator = null;
+    this.currentUserFunction = null;
     clearTimeout(this.animation);
+  }
+
+  setUpAnimation() {
+    this.clearAnimation();
+    this.buildInitialGraph();
+  }
+  
+  startAnimation() {
+    this.animationHasStarted = true;
+    this.animationInterval(this.currentGenerator);
+  }
+
+  togglePause() {
+    this.animationIsPaused = !this.animationIsPaused;
   }
 
   buildInitialGraph() {
@@ -122,32 +125,40 @@ export class CodeOutputComponent {
   
   hiLine(line: any) {
     this.currentLine = line.line ?? line;
+
+    // line index in the codeComment block
     const lineNumber = this.currentLine - this.currentLinesSelection.start;
 
     //@ts-ignore
-    const comment = line.comment || this.executableLines.toArray()[lineNumber].nativeElement.dataset.comment;
+    let comment = line.comment;
+    if (!comment) {
+      try {
+        comment = this.executableLines.toArray()[lineNumber].nativeElement.dataset.comment;
+      } catch(error) {
+        throw Error(`The line to highlight (${line}) does not exist`);
+      }
+    }
     this.currentComment = comment;
   }
 
   selectUserFunction(functionIndex: number) {
-    const userFunctionsBar = document.getElementById("user-functions");
-    const params = userFunctionsBar.querySelectorAll(`[data-function-index='${functionIndex}'] > input`) as any;
-    const castedParams = this.castParams(params);
+    const inputs = this.getInputsForFunction(functionIndex);
+    const castedParams = this.castInputValues(inputs);
     const userFunction = this.userFunctions[functionIndex];
+    this.currentUserFunction = userFunction.name;
     this.currentLinesSelection = userFunction.lines;
     this.currentGenerator = userFunction.body(castedParams);
-    this.animationHasTerminated = false;
-  }
-  
-  startAnimation() {
-    this.animationHasStarted = true;
-    this.animationInterval(this.currentGenerator);
   }
 
-  castParams(params: any[]): any[] {
-    return [...params].map(param => {
-      let value = param.value;
-      switch(param.dataset.type) {
+  getInputsForFunction(functionIndex: number): HTMLInputElement[] {
+    const userFunctionsBar = document.getElementById("user-functions");
+    return userFunctionsBar.querySelectorAll(`[data-function-index='${functionIndex}'] > input`) as any;
+  }
+
+  castInputValues(inputs: HTMLInputElement[]): any | any[] {
+    return [...inputs].map(input => {
+      let value = input.value;
+      switch(input.dataset.type) {
         case InputType.Number:
           return Number(value);
 
@@ -160,26 +171,35 @@ export class CodeOutputComponent {
         case InputType.StringList:
           return value.split(",");
       }
-    });
+    })[0];
   }
 
-  validateInput(datatype: InputType, dataReference: string) {
-    const inputElement = (document.querySelector(`[data-index="${dataReference}"]`) as HTMLInputElement)
+  functionInputsAreValid(functionIndex: number): boolean{
+    const inputs = this.getInputsForFunction(functionIndex) as any;
+    return [...inputs].map(this.inputIsValid).every(input => input);
+  }
+
+  inputIsValid(input: HTMLInputElement): boolean {
     let regex: RegExp;
+    const datatype = input.dataset.type;
+    const value = input.value; 
+
+    if (value == "") return false;
+
     switch (datatype) {
       case InputType.Number:
-        regex = REGEXES.NUMERICAL
+        regex = REGEXES.NUMERICAL;
       break;
 
       case InputType.NumberList: 
-        regex = REGEXES.NUMERICAL_SERIES
+        regex = REGEXES.NUMERICAL_SERIES;
       break;
-      
+
+      case InputType.String:
       case InputType.StringList: 
-        regex = REGEXES.ANY
-      break;
+        return true;
     }
-    this.toggleInputValidity(regex, inputElement);
+    return regex.test(value);
   } 
 
   toggleInputValidity(regex: RegExp, element: HTMLInputElement) {
@@ -193,29 +213,28 @@ export class CodeOutputComponent {
     return isValid;
   }
 
-  animationInterval = (generator: any) => {
+  animationInterval = (generator: Generator) => {
     let waitingInterval: number;
-    let line = generator.next();
-    if (line.done) {
-      // generator is done
-      this.clearAnimation();
-      this.animationHasTerminated = true;
-      return;
-    } 
     
     if (this.animationIsPaused) {
       // animation is paused, check for awakes
       waitingInterval = this.DEFAULT_ANIMATION_WAITING_TIME;
     } else {
       // animation is running
-      this.hiLine(line.value);
+      let line = generator.next();
+      if (line.done) {
+        // generator is done
+        this.clearAnimation();
+        return;
+      } 
+      try {
+        this.hiLine(line.value);
+      } catch (error) {
+        printRuntimeError(error.message)
+      }
       waitingInterval = Number(this.delay.nativeElement.innerHTML);
     }
 
     this.animation = setTimeout(this.animationInterval, waitingInterval, generator);
-  }
-
-  togglePause() {
-    this.animationIsPaused = !this.animationIsPaused;
   }
 }

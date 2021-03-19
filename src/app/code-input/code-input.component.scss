@@ -163,10 +163,6 @@ $editor-width: 55%;
         & input {
             padding-left: 2px;
             outline-color: $color3;
-
-            &.wrong {
-                outline-color: $error;
-            }
         }
     }
 }

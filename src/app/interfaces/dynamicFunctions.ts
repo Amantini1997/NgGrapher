@@ -16,8 +16,8 @@ interface LinesSelection {
 }
 
 const REGEXES = {
-    NUMERICAL_SERIES: /^\d+(\.\d+){0,1}(\s*\,\s*\d+(\.\d+){0,1})*\s*$/,
-    NUMERICAL: /^\d*(\.\d+)*$/,
+    NUMERICAL_SERIES: /^[\-]{0,1}\d+(\.\d+){0,1}(\s*\,\s*[\-]{0,1}\d+(\.\d+){0,1})*\s*$/,
+    NUMERICAL: /^[\-]{0,1}\d*(\.\d+)*$/,
     ANY: /\./
 }
 
