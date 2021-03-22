@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CodeED } from '../interfaces/codeInterfaces';
+import { AnimationConfig } from '../interfaces/codeInterfaces';
 
 @Component({
   selector: 'generator-page',
@@ -8,9 +8,9 @@ import { CodeED } from '../interfaces/codeInterfaces';
 })
 export class GeneratorPageComponent{
 
-  codeED: CodeED;
+  config: AnimationConfig;
 
-  renderCode(codeED: CodeED) {
-    this.codeED = codeED;
+  renderCode(config: AnimationConfig) {
+    this.config = config;
   }
 }

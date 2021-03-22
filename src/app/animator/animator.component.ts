@@ -42,12 +42,12 @@ export class AnimatorComponent {
   fixedValues: string;
   readonly NODE_WIDTH: number = 30;
 
-  // barPlots UI
+  // barPlots UI variables
   readonly MIN_BAR_HEIGHT: number = 5;
   readonly MAX_BAR_HEIGHT: number = 200;
   readonly BAR_PADDING: number = 5;
 
-  // list UI
+  // list UI variables
   readonly SQUARE_PADDING: number = 30;
   readonly SQUARE_HEIGHT: number = this.NODE_WIDTH;
 
@@ -76,10 +76,13 @@ export class AnimatorComponent {
 
   buildGraph() {
     this.setNodeContainerIfUndefined();
+
+    // Configure the nodes of the animation depending 
+    // on the data structure 
     switch(this.dataStructure) {
       case DataStructure.BarPlot:
         this.nodeTypePadding = this.BAR_PADDING;
-        this.adjustBarsHeight();
+        this.adjustBarsHeightToScreen();
         break;
 
       case DataStructure.List:
@@ -96,15 +99,19 @@ export class AnimatorComponent {
     }
   }
 
-  adjustBarsHeight() {
+  adjustBarsHeightToScreen() {
+    // This method is called only when the data structure used
+    // is of type barplot.
+    // It adjusts the heights of all the bars to have them 
+    // nicely fit in the screen
     this.normaliseBarsHeight();
     const nodesHeight = this.nodes.map(node => node.height);
     this.graphHeight = Math.max(...nodesHeight);
   }
 
   refreshGraph = (nodeWasAdded: boolean) => {
-    if (this.dataStructure == DataStructure.BarPlot) {
-      this.adjustBarsHeight();
+    if (this.dataStructure === DataStructure.BarPlot) {
+      this.adjustBarsHeightToScreen();
     }
     if (nodeWasAdded) {
       this.centerNodes();

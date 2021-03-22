@@ -1,7 +1,7 @@
 import { Options } from '@angular-slider/ngx-slider';
 import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren } from '@angular/core';
 // import { AnimatorComponent } from '../animator/animator.component';
-import { CodeED } from '../interfaces/codeInterfaces';
+import { AnimationConfig } from '../interfaces/codeInterfaces';
 import { DynamicFunction, InputType, LinesSelection, REGEXES } from '../interfaces/dynamicFunctions';
 import { Grapher } from '../grapher';
 import { printRuntimeError, printSyntaxError } from '../errorGenerator';
@@ -13,7 +13,7 @@ import { printRuntimeError, printSyntaxError } from '../errorGenerator';
 })
 export class CodeOutputComponent {
 
-  @ViewChildren("executableLine") executableLines: QueryList<HTMLDivElement>;
+  @ViewChildren("codeCommentLine") codeCommentLines: QueryList<ElementRef>;
   @ViewChild("delay", {read: ElementRef}) delay: ElementRef;
 
   // readonly GeneratorFunction = Object.getPrototypeOf(function*(){}).constructor;
@@ -35,22 +35,22 @@ export class CodeOutputComponent {
   animationIsPaused: boolean = false;
   animation: any;
   grapher: Grapher;
-  codeED: CodeED;
+  config: AnimationConfig;
   userFunctions: DynamicFunction[];
 
   constructor() { }
 
   @Input() 
-  set newCodeED(codeED: CodeED) {
-    if(!codeED) return;
+  set newConfig(config: AnimationConfig) {
+    if(!config) return;
 
     // Check syntax validity of the dynamic code 
     try {
-      this.codeED = codeED;
+      this.config = config;
       this.setUpAnimation();
-      new Function("grapher", this.tryCatchCode(codeED.executable))(this.grapher);
+      new Function("grapher", this.tryCatchCode(config.executable))(this.grapher);
     } catch(error) {
-      this.codeED = null;
+      this.config = null;
       const messageHTML = `
         There is a syntax error in your input code. Please fix it
         before proceeding with the creation of the animation. 
@@ -89,7 +89,7 @@ export class CodeOutputComponent {
       initialValues,
       nodeType, 
       dataStructure
-    } = this.codeED;
+    } = this.config;
     this.grapher = new Grapher(nodeType, dataStructure, initialValues);
     this.generateUserFunctionsFromCode();
   }
@@ -119,26 +119,18 @@ export class CodeOutputComponent {
   // ?}
 
   generateUserFunctionsFromCode() {
-    const executableCode = this.codeED.executable;
+    const executableCode = this.config.executable;
     this.userFunctions = new Function("grapher", "type", this.tryCatchCode(executableCode))(this.grapher, InputType);
   } 
   
-  hiLine(line: any) {
+  highlightLine(line: any) {
     this.currentLine = line.line ?? line;
 
     // line index in the codeComment block
     const lineNumber = this.currentLine - this.currentLinesSelection.start;
 
-    //@ts-ignore
-    let comment = line.comment;
-    if (!comment) {
-      try {
-        comment = this.executableLines.toArray()[lineNumber].nativeElement.dataset.comment;
-      } catch(error) {
-        throw Error(`The line to highlight (${line}) does not exist`);
-      }
-    }
-    this.currentComment = comment;
+    const codeCommentLine = this.codeCommentLines.toArray()[lineNumber]; 
+    this.currentComment = line?.comment ?? codeCommentLine.nativeElement.dataset.comment;
   }
 
   selectUserFunction(functionIndex: number) {
@@ -184,7 +176,7 @@ export class CodeOutputComponent {
     const datatype = input.dataset.type;
     const value = input.value; 
 
-    if (value == "") return false;
+    if (value === "") return false;
 
     switch (datatype) {
       case InputType.Number:
@@ -220,7 +212,7 @@ export class CodeOutputComponent {
       // animation is paused, check for awakes
       waitingInterval = this.DEFAULT_ANIMATION_WAITING_TIME;
     } else {
-      // animation is running
+      // animation is running, execute next line
       let line = generator.next();
       if (line.done) {
         // generator is done
@@ -228,7 +220,7 @@ export class CodeOutputComponent {
         return;
       } 
       try {
-        this.hiLine(line.value);
+        this.highlightLine(line.value);
       } catch (error) {
         printRuntimeError(error.message)
       }

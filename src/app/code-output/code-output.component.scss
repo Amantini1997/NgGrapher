@@ -23,12 +23,13 @@ $min-comment-height: 48px;
 #user-functions {
     @extend .card-shape;
     grid-column: auto / span 2;
-    justify-content: space-around;
     margin: 10px;
     align-items: center;
+    overflow-x: auto;
 
     & div {
         display: flex;
+        margin-right: 10px;
 
         & > button {
             @extend .contrast-btn;

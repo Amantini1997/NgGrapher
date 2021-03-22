@@ -1,12 +1,14 @@
 import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
-import { CodeComment, CodeED } from '../interfaces/codeInterfaces';
+import { DisplayableCodeComment, AnimationConfig } from '../interfaces/codeInterfaces';
 import { DataStructure, getNodeFromDataStructure } from '../grapher';
 
 import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/hint/javascript-hint";
 
+import queue from '../../assets/templates/queue.json';
 import bubbleSort from '../../assets/templates/bubbleSort.json';
-import { CodemirrorModule } from '@ctrl/ngx-codemirror';
+import defaultAlertTemplate from '../../assets/templates/defaultAlertTemplate.json';
+import { interactionError } from '../errorGenerator';
 
 @Component({
   selector: 'code-input',
@@ -15,14 +17,14 @@ import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 })
 export class CodeInputComponent {
   
-  @Output() generate = new EventEmitter<CodeED>();
-  @ViewChild("codeEditor") codeEditor;
+  @Output() generate = new EventEmitter<AnimationConfig>();
+  @ViewChild("codeEditor") codeEditor: any;
   @ViewChild("initialValues", {read: ElementRef}) initialValuesInput: ElementRef;
   @ViewChild("numericalInput", {read: ElementRef}) numericalInput: ElementRef;
 
   // ! Do not replace INDENT with normal space
   readonly INDENT = " ";
-  readonly DISPLAY_CODE_EMPTY_LINES = 15;
+  readonly EMPTY_CODE_COMMENT_LINES = 15;
   readonly editorOptions = {
     mode:  "javascript",
     lineNumbers: true,
@@ -34,99 +36,33 @@ export class CodeInputComponent {
   };
   readonly EDITOR_HEIGHT = "450px";
 
-  initialValuesAsString: string = "";
-  lines: CodeComment[] = [];
-  editorCode: string = `/** 
-*  Use this space to write the logic of the program, i.e. the javascript function 
-*  that operates the algorithm. Use the "yield" keyword to tell the program 
-*  which line to highlight at each stage.
-* e.g.
-*      yield 0 
-*  This will highlight the 0th line (remember the program uses the array notation,
-*  so the first element is the element at position 0)
-* 
-*  It is possible to return dynamic comments, for example if a the comment
-*  depends on the value of a variable. In such case use the keyword yield to return
-*  a JSON object of the form:
-*  yield {
-*      line: 0,
-*      comment: "checking if element " + x + " >= " + y
-*  }
-* 
-* Remember to include the return array of the functions 
-* that the user can interact with.
-*/ 
-
-
-// highlight the function call
-return [
-  {
-    name: "alert",
-    body: alerting,
-    params: [
-      {
-        name: "message to alert",
-        type: "string"
-      }
-    ],
-    lines: {
-      start: 0,
-      end: 2
-    }
-  }
-]; 
-
-function * alerting(message) {
-  yield 0
-
-  // highlight the alert()
-  yield {
-      line: 1, 
-      comment: "alerting message '" + message + "'"
-  } 
-  alert(message);
-
-  // highlight the end of the function
-  yield 2
-}
-`;
+  initialValuesAsString: string;
+  displayableCodeComments: DisplayableCodeComment[];
+  editorCode: string;
 
   constructor() {
-    this.lines = [
-      {
-        code: 'function alert(message)', 
-        comment: ''
-      },
-      {
-        code: '&emsp;alert(message);', 
-        comment: ''
-      },
-      {
-        code: '}', 
-        comment: ''
-      },
-    ];
-    Array(this.DISPLAY_CODE_EMPTY_LINES).fill(0)
-        .forEach(_ => this.lines.push(this.generateEmptyCodeComment()));
+    this.setUpConfig();
   }
 
-  // Set the size of the code editor
   ngAfterViewInit() {
     this.codeEditor.codeMirror = this.codeEditor.codeMirror;
     this.setCodeEditorSize();
+    this.setCodeEditorIntellisense();
   }
 
   setCodeEditorSize() {
     this.codeEditor.codeMirror.setSize(null, this.EDITOR_HEIGHT);
-    this.codeEditor.codeMirror.on("keyup", (codeMirror, event) => {
-      if (!codeMirror.state.completionActive && /*Enables keyboard navigation in autocomplete list*/
-          event.keyCode != 13) {        /*Enter - do not open autocomplete list just after item has been selected in it*/ 
-            this.codeEditor.codeMirror.commands.autocomplete(codeMirror, null, {completeSingle: false});
+  }
+
+  setCodeEditorIntellisense() {
+    this.codeEditor.codeMirror.on("keyup", (codeMirror, _) => {
+      if (!codeMirror.state.completionActive) { 
+        this.codeEditor.codeMirror.commands.autocomplete(codeMirror, null, {completeSingle: false});
       }
     });
   }
 
-  generateEmptyCodeComment(): CodeComment {
+  generateEmptyCodeComment(): DisplayableCodeComment {
     return {
       code: "",
       comment: ""
@@ -134,13 +70,13 @@ function * alerting(message) {
   }
 
   deleteCodeCommentLine(lineIndex: number) {
-      this.lines.splice(lineIndex, 1);
+      this.displayableCodeComments.splice(lineIndex, 1);
   }
 
-  addCodeCommentLine(lineIndex: number = this.lines.length) {
+  addCodeCommentLine(lineIndex: number = this.displayableCodeComments.length) {
     window.event.preventDefault();
     const nextLineIndex = lineIndex + 1
-    this.lines.splice(nextLineIndex, 0, this.generateEmptyCodeComment());
+    this.displayableCodeComments.splice(nextLineIndex, 0, this.generateEmptyCodeComment());
     window.requestAnimationFrame(() => this.focusOnLine(nextLineIndex));
   }
 
@@ -171,35 +107,18 @@ function * alerting(message) {
     sel.addRange(range);
   }
 
-  getCodeCommentLines(): CodeComment[] {
-    const lines = document.querySelectorAll("#lines-table__body .code-comment-ctn") as any;
-    return [...lines].map(line => {
+  getCodeComments(): DisplayableCodeComment[] {
+    const codeComments = document.querySelectorAll("#lines-table__body .code-comment-ctn") as any;
+    return [...codeComments].map(codeComment => {
       return {
-        code: this.extractLineProperty(line, "code"),
-        comment: this.extractLineProperty(line, "comment")
+        code: this.extractCodeCommentProperty(codeComment, "code"),
+        comment: this.extractCodeCommentProperty(codeComment, "comment")
       };
     });
   }   
 
-  extractLineProperty(parent: HTMLElement, elementName: string) {
-    return parent.querySelector(`[class^="line-${elementName}"]`).innerHTML;
-  }
-
-  getConfig(): CodeED {
-    const executableCode = this.getExecutableCode();
-    const filteredDisplayableCode = this.getFilteredDisplayableCode();
-    const initialValues = this.getInitialValues();
-    const dataStructureName = (document.getElementById("data-structure") as HTMLSelectElement).value;
-    const dataStructure = DataStructure[dataStructureName];
-    const nodeType = getNodeFromDataStructure(dataStructure);
-    const config: CodeED = {
-      executable: executableCode,
-      displayable: filteredDisplayableCode,
-      initialValues: initialValues,
-      dataStructure: dataStructure,
-      nodeType: nodeType
-    };
-    return config;
+  extractCodeCommentProperty(codeCommentTag: HTMLElement, elementName: string) {
+    return codeCommentTag.querySelector(`[class^="line-${elementName}"]`).innerHTML;
   }
 
   getInitialValues(): any[] {
@@ -210,26 +129,12 @@ function * alerting(message) {
     return valuesAsArray || [];
   }
 
-  getCodeED() {
-    const config = this.getConfig();
-    this.generate.emit(config);
-  }
-
-  getFilteredDisplayableCode(): CodeComment[] {
-    const lines = this.getCodeCommentLines();
-    return lines.map(this.sanitiseCodeCommentBlock);
-  }
-  
-  sanitiseCodeCommentBlock = ({code, comment}): CodeComment => {
-    return {
-      code: this.sanitiseText(code),
-      comment: this.sanitiseText(comment),
-    };
-  }
-
-  sanitiseText = (text: string): string => {
-    // @ts-ignore
-    return text.replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+  removeStyling(event: ClipboardEvent) {
+    // Remove styling from pasted code.
+    // This is necessary for content-editable elements
+    event.preventDefault();
+    const pastedCode = event.clipboardData.getData('text/plain');
+    document.execCommand('insertText', false, pastedCode);
   }
   
   getExecutableCode(): string {
@@ -239,22 +144,55 @@ function * alerting(message) {
     return executableCode;
   }
 
+  getConfig(): AnimationConfig {
+    const executable = this.getExecutableCode();
+    const displayableCodeComments = this.getCodeComments();
+    const initialValues = this.getInitialValues();
+    const dataStructureName = (document.getElementById("data-structure") as HTMLSelectElement).value;
+    const dataStructure = DataStructure[dataStructureName];
+    const nodeType = getNodeFromDataStructure(dataStructure);
+    const config: AnimationConfig = {
+      executable,
+      displayableCodeComments,
+      initialValues,
+      dataStructure,
+      nodeType
+    };
+    return config;
+  }
+
+  generateAnimation() {
+    const config = this.getConfig();
+    this.generate.emit(config);
+  }
+
   downloadConfig() {
     const config = this.getConfig();
     const a = document.createElement("a");
     const file = new Blob([JSON.stringify(config)], { type: "text/json" });
     a.href = URL.createObjectURL(file);
-    a.download = "animator_config.json";
+    a.download = "grapher_animation_config.json";
     a.click();
   }
 
-  loadConfig() {
-    // TODO make this dynamic
-    // const config = JSON.parse("file")   
-    let config = bubbleSort; 
+  setUpConfig(config: AnimationConfig = defaultAlertTemplate) {
     this.editorCode = config.executable
-    this.lines = config.displayable;  
+    this.displayableCodeComments = config.displayableCodeComments;  
     this.initialValuesAsString = config.initialValues.join(", "); 
+  }
+
+  loadConfig(event: Event) {
+    const loadableFile = (event.target as HTMLInputElement).files[0];
+    const fileReader = new FileReader();
+    fileReader.onload = fileLoadedEvent => {
+      const configFile = fileLoadedEvent.target.result as string;
+      try {
+        this.setUpConfig(JSON.parse(configFile));
+      } catch {
+        interactionError("The file is not valid");
+      }
+    };
+    fileReader.readAsText(loadableFile, "UTF-8");
   }
 }
 

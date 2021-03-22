@@ -9,7 +9,7 @@
     >
     </ngx-codemirror>
     
-    <!-- Code to be disaplyed -->
+    <!-- Code to be displayed -->
     <div id="display-code">
         <div id="lines-table">
             
@@ -24,22 +24,24 @@
             </div>
             
             <div id="lines-table__body" #codeCommentBlock>
-                <div class="raw-line" *ngFor="let line of lines; let lineCount=index">
-                    <div class="counter">{{lineCount}}</div>
+                <div class="raw-line" *ngFor="let codeComment of displayableCodeComments; let lineIndex=index">
+                    <div class="counter">{{lineIndex}}</div>
                     <div class="code-comment-ctn">
-                        <div class="line-code-{{lineCount}}" contenteditable 
-                            (keydown.enter)="addCodeCommentLine(lineCount)" 
-                            (keydown.tab)="indentCode(lineCount)"
-                            (keydown.shift.tab)="indentCode(lineCount, true)"
-                            [innerHTML]="line.code"
+                        <div class="line-code-{{lineIndex}}" contenteditable 
+                            (paste)="removeStyling($event)"
+                            (keydown.enter)="addCodeCommentLine(lineIndex)" 
+                            (keydown.tab)="indentCode(lineIndex)"
+                            (keydown.shift.tab)="indentCode(lineIndex, true)"
+                            [innerHTML]="codeComment.code"
                         >
                         </div>
                         <div class="line-comment" contenteditable
-                            [innerHTML]="line.comment"
+                            (paste)="removeStyling($event)"
+                            [innerHTML]="codeComment.comment"
                         >
                         </div>
                     </div>
-                    <div class="bin" (click)="deleteCodeCommentLine(lineCount)">
+                    <div class="bin" (click)="deleteCodeCommentLine(lineIndex)">
                         <img src="assets/img/red_bin.png">
                     </div>
                 </div>
@@ -48,27 +50,23 @@
             <div id="lines-table__btn">
                 <button (click)="addCodeCommentLine()">New Line</button> 
                 <button id="display-code__btn" 
-                        (click)="getCodeED()"
+                        (click)="generateAnimation()"
                 >
-                    Generate Code
+                    Generate Animation
                 </button>
             </div>
         </div>       
     </div>
 </div>
 <div class="config-btn">
-    <!-- <div> -->
         <select id="data-structure">
-            <!-- <optgroup> -->
-                <option>
-                    BarPlot
-                </option>
-                <option>
-                    List
-                </option>
-            <!-- </optgroup> -->
+            <option>
+                BarPlot
+            </option>
+            <option>
+                List
+            </option>
         </select>
-    <!-- </div> -->
     <div>
         <label for="initial-values">Initial Values:</label>
         <input id="initial-values" 
@@ -79,5 +77,6 @@
         >
     </div>
     <button (click)="downloadConfig()">Save Configuration</button>
-    <button (click)="loadConfig()">Load Configuration</button>
+    <button (click)="configLoader.click()">Load Configuration</button>
+    <input #configLoader (change)="loadConfig($event)" type="file" hidden>
 </div>

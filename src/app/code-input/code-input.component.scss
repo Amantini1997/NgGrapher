@@ -116,9 +116,9 @@ $editor-width: 55%;
                             filter: grayscale(100%);
                             width: 20px;
                             transition: all .2s;
+                            cursor: pointer; 
         
                             & > img {
-                                cursor: pointer; 
                                 width: 13px; 
                                 height: 17px;
                             }

@@ -19,14 +19,13 @@
 </div>
 
 <div class="code-highlighter">
-    <ng-container *ngFor="let codeComment of codeED?.displayable; let lineIndex=index">
+    <ng-container *ngFor="let codeComment of config?.displayableCodeComments; let lineIndex=index">
         <div *ngIf="lineIndex >= (currentLinesSelection?.start || -1) && lineIndex <= (currentLinesSelection?.end || -1)"
-             #executableLine
+             #codeCommentLine
              [class.highlight]="lineIndex === currentLine"
              [attr.data-lineIndex]="lineIndex"
              [attr.data-comment]="codeComment?.comment"
-             [innerHTML]="codeComment?.code || ''"
-             
+             [innerHTML]="codeComment?.code || ''"  
         >
         </div>
     </ng-container>
@@ -54,7 +53,7 @@
 
         
         <button *ngIf="!animationHasStarted" 
-                [disabled]="!codeED || !currentGenerator"
+                [disabled]="!config || !currentGenerator"
                 (click)="startAnimation()">
             START
         </button>
@@ -70,7 +69,7 @@
             </ng-template>
         </div>
 
-        <button [disabled]="!codeED" (click)="setUpAnimation()" 
+        <button [disabled]="!config" (click)="setUpAnimation()" 
         >
             RESET
         </button>

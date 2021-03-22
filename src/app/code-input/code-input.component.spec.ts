@@ -27,7 +27,6 @@ describe('CodeInputComponent', () => {
   });
 
   it('should create', () => {
-    // component.ngAfterViewInit();
     expect(component).toBeTruthy();
   });
 });

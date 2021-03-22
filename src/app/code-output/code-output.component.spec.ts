@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CodeComment, CodeED } from '../interfaces/codeInterfaces';
+import { AnimationConfig } from '../interfaces/codeInterfaces';
 import { DynamicFunction, InputType } from '../interfaces/dynamicFunctions';
 import { DataStructure, NodeType } from '../interfaces/grapherInterfaces';
 
 import { CodeOutputComponent } from './code-output.component';
 
-fdescribe('CodeOutputComponent', () => {
+describe('CodeOutputComponent', () => {
   let component: CodeOutputComponent;
   let fixture: ComponentFixture<CodeOutputComponent>;
   
@@ -30,7 +30,7 @@ fdescribe('CodeOutputComponent', () => {
     }
   }
 
-  let mockCodeED: CodeED = {
+  let mockConfig: AnimationConfig = {
       executable: `return [
         {
           name: "${mockDynamicFunction.name}",
@@ -50,7 +50,7 @@ fdescribe('CodeOutputComponent', () => {
       
       function * emptyGenerator() {}
       `,
-      displayable: [{
+      codeComments: [{
         code: "",
         comment: ""
       }],
@@ -86,11 +86,11 @@ fdescribe('CodeOutputComponent', () => {
     expect(component.animationHasStarted).toBeFalse();
     expect(component.animation).toBeUndefined();
     expect(component.grapher).toBeUndefined();
-    expect(component.codeED).toBeUndefined();
+    expect(component.config).toBeUndefined();
   });
 
   it("generateUserCode should correctly set user functions", () => {
-    component.codeED = mockCodeED;
+    component.config = mockConfig;
     component.generateUserFunctionsFromCode();
     expect(component.userFunctions[0].name).toBe(mockDynamicFunction.name);
     expect(component.userFunctions[0].params).toBe(mockDynamicFunction.params);
@@ -99,7 +99,7 @@ fdescribe('CodeOutputComponent', () => {
   });
 
   it("clearAnimation should reset variable after animation", () => {
-    component.codeED = mockCodeED;
+    component.config = mockConfig;
     component.buildInitialGraph();
     component.startAnimation();
     component.togglePause();

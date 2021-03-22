@@ -1,16 +1,15 @@
 import { DataStructure, NodeType } from "./grapherInterfaces";
 
-export interface CodeComment {
+export interface DisplayableCodeComment {
     code: string,
     comment: string
 }
 
 declare type ExecutableCode = string;
 
-// executable plus display code
-export interface CodeED {
+export interface AnimationConfig {
     executable: ExecutableCode,
-    displayable: CodeComment[],
+    displayableCodeComments: DisplayableCodeComment[],
     initialValues: any[],
     nodeType: NodeType,
     dataStructure: DataStructure
