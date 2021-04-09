@@ -1,6 +1,5 @@
 import { Input, Component, ChangeDetectorRef } from '@angular/core';
-import { interactionError } from '../errorGenerator';
-import { DataStructure, Grapher, NodeType, Node } from '../grapher';
+import { DataStructure, Grapher, NodeType, AnimationNode } from '../grapher/grapher';
 
 @Component({
   selector: 'animator',
@@ -11,7 +10,7 @@ export class AnimatorComponent {
 
   // grapher variables
   grapher: Grapher;
-  nodes: Node[];
+  nodes: AnimationNode[];
   dataStructure: DataStructure;
   nodeType: NodeType;
 
@@ -153,15 +152,15 @@ export class AnimatorComponent {
     this.graphBottomMargin = (containerHeight - this.graphHeight) / 2;
   }
 
-  shiftNodeToRight(node: Node) {
+  shiftNodeToRight(node: AnimationNode) {
     this.shiftNode(node, +1);
   }
 
-  shiftNodeToLeft(node: Node) {
+  shiftNodeToLeft(node: AnimationNode) {
     this.shiftNode(node, -1);
   }
 
-  shiftNode(node: Node, shiftDirection: 1 | -1) {
+  shiftNode(node: AnimationNode, shiftDirection: 1 | -1) {
     const HALF_BLOCK = 0.5;
     const shiftAmount = (this.NODE_WIDTH + this.nodeTypePadding) * HALF_BLOCK * shiftDirection;
     node.left += shiftAmount;
@@ -170,11 +169,6 @@ export class AnimatorComponent {
   applyWheelZoom(event: WheelEvent) {
     if (!this.nodeContainer) return;
     event.preventDefault();
-    // const origin = this.getOrigin(event);
-    // if (!origin) {
-    //   // there is already too much offset
-    //   return;
-    // }
     this.updateScale(event);
   }
 
@@ -190,14 +184,6 @@ export class AnimatorComponent {
     } 
     return !scaleIsMinScale;
   }
-
-  // getOrigin(event: WheelEvent): [number, number] {
-  //   const bounds = this.nodeContainer.getBoundingClientRect();
-  //   let x = (event.clientX - bounds.left) * .5;
-  //   let y = (event.clientY - bounds.top) * .25;
-  //   if (isNaN(x) || isNaN(y)) return null;
-  //   return [x, y];
-  // }
 
   updatePropertyInPx(element: HTMLElement, property: string, delta: number) {
     element.style.setProperty(property, delta + "px");

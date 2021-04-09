@@ -1,12 +1,10 @@
-import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
 import { DisplayableCodeComment, AnimationConfig } from '../interfaces/codeInterfaces';
-import { DataStructure, getNodeFromDataStructure } from '../grapher';
+import { DataStructure, getNodeFromDataStructure } from '../grapher/grapher';
 
 import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/hint/javascript-hint";
 
-import queue from '../../assets/templates/queue.json';
-import bubbleSort from '../../assets/templates/bubbleSort.json';
 import defaultAlertTemplate from '../../assets/templates/defaultAlertTemplate.json';
 import { interactionError } from '../errorGenerator';
 
@@ -37,10 +35,12 @@ export class CodeInputComponent {
   readonly EDITOR_HEIGHT = "450px";
 
   initialValuesAsString: string;
+  initialValuesIsNumerical: boolean = true;
+  dataStructureName: string = DataStructure.BarPlot;
   displayableCodeComments: DisplayableCodeComment[];
   editorCode: string;
 
-  constructor() {
+  constructor(private cdRef: ChangeDetectorRef) {
     this.setUpConfig();
   }
 
@@ -60,6 +60,16 @@ export class CodeInputComponent {
         this.codeEditor.codeMirror.commands.autocomplete(codeMirror, null, {completeSingle: false});
       }
     });
+  }
+
+  setIsNumerical(isNumerical: boolean) {
+    this.initialValuesIsNumerical = isNumerical; 
+    this.cdRef.detectChanges();
+  }
+
+  setDataStructure(dataStructure: string) {
+    this.dataStructureName = dataStructure;
+    this.cdRef.detectChanges();
   }
 
   generateEmptyCodeComment(): DisplayableCodeComment {
@@ -84,29 +94,6 @@ export class CodeInputComponent {
     (document.querySelector(`.line-code-${lineIndex}`) as HTMLElement).focus();
   }
 
-  indentCode(lineIndex: number, inverse=false) {
-    window.event.preventDefault();
-    let line = document.querySelector(`.line-code-${lineIndex}`) as HTMLDivElement;
-    if(inverse) {
-      if(line.innerHTML.startsWith(this.INDENT)) {
-        line.innerHTML = line.innerHTML.replace(this.INDENT, "");
-      }
-    } else {
-      line.innerHTML = this.INDENT + line.innerHTML;
-      this.moveCaret(this.INDENT.length, line);
-    }
-  }
-  
-  moveCaret(positionShift: number, line: HTMLDivElement) {    
-    const range = document.createRange();
-    const sel = window.getSelection();
-    const offset = sel.focusOffset;
-    range.setStart(line, offset + positionShift);
-    range.collapse(true);
-    sel.removeAllRanges();
-    sel.addRange(range);
-  }
-
   getCodeComments(): DisplayableCodeComment[] {
     const codeComments = document.querySelectorAll("#lines-table__body .code-comment-ctn") as any;
     return [...codeComments].map(codeComment => {
@@ -123,10 +110,18 @@ export class CodeInputComponent {
 
   getInitialValues(): any[] {
     const valuesAsString = (this.initialValuesInput.nativeElement as HTMLInputElement).value;
-    let valuesAsArray = valuesAsString.split(",")
-                                      .map(value => value.trim())
-                                      .map(Number);
+    let valuesAsArray: any[] = valuesAsString.split(",")
+                                             .map(value => value.trim());
+    if (this.initialValuesIsNumerical) {
+      valuesAsArray = valuesAsArray.map(Number);
+    }
     return valuesAsArray || [];
+  }
+
+  getInitialValuesPlaceholder(): string {
+    return (this.initialValuesIsNumerical)
+      ? "e.g. 1, 5, 2, 6, 8, 3"
+      : "e.g. these, are, 4, words";
   }
 
   removeStyling(event: ClipboardEvent) {
@@ -148,8 +143,7 @@ export class CodeInputComponent {
     const executable = this.getExecutableCode();
     const displayableCodeComments = this.getCodeComments();
     const initialValues = this.getInitialValues();
-    const dataStructureName = (document.getElementById("data-structure") as HTMLSelectElement).value;
-    const dataStructure = DataStructure[dataStructureName];
+    const dataStructure = DataStructure[this.dataStructureName];
     const nodeType = getNodeFromDataStructure(dataStructure);
     const config: AnimationConfig = {
       executable,

@@ -7,7 +7,6 @@ describe('CodeInputComponent', () => {
   let component: CodeInputComponent;
   let fixture: ComponentFixture<CodeInputComponent>;
   let element: HTMLElement;
-  let codeMirror: HTMLElement;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({

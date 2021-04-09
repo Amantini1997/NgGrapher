@@ -29,9 +29,7 @@
                     <div class="code-comment-ctn">
                         <div class="line-code-{{lineIndex}}" contenteditable 
                             (paste)="removeStyling($event)"
-                            (keydown.enter)="addCodeCommentLine(lineIndex)" 
-                            (keydown.tab)="indentCode(lineIndex)"
-                            (keydown.shift.tab)="indentCode(lineIndex, true)"
+                            (keydown.enter)="addCodeCommentLine(lineIndex)"
                             [innerHTML]="codeComment.code"
                         >
                         </div>
@@ -59,8 +57,10 @@
     </div>
 </div>
 <div class="config-btn">
-        <select id="data-structure">
-            <option>
+        <select id="data-structure" 
+                #dataStructure
+                (change)="setDataStructure(dataStructure.value)">
+            <option selected>
                 BarPlot
             </option>
             <option>
@@ -72,8 +72,18 @@
         <input id="initial-values" 
                #initialValues
                type="text" 
-               placeholder="e.g. 1, 5, 2, 6, 8, 3"
+               [placeholder]="getInitialValuesPlaceholder()"
                [value]="initialValuesAsString"
+        >
+        <label for="is-numerical" 
+               [hidden]="dataStructure.value == 'BarPlot'"
+        >
+            Numerical Values</label>
+        <input id="is-numerical" 
+               #isNumerical 
+               type="checkbox" 
+               (click)="setIsNumerical(isNumerical.checked)"
+               [hidden]="dataStructure.value == 'BarPlot'"
         >
     </div>
     <button (click)="downloadConfig()">Save Configuration</button>

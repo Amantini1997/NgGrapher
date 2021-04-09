@@ -1,6 +1,6 @@
-import { AnimatorComponent } from "./animator/animator.component";
-import { printRuntimeError } from "./errorGenerator";
-import { DataStructure, NodeType, NodeValue, NodeSelectionMode, Node } from "./interfaces/grapherInterfaces";
+import { AnimatorComponent } from "../animator/animator.component";
+import { printRuntimeError } from "../errorGenerator";
+import { DataStructure, NodeType, NodeValue, AnimationNode } from "../interfaces/grapherInterfaces";
 
 
 function getNodeFromDataStructure(dataStructure: DataStructure): NodeType {
@@ -13,15 +13,13 @@ function getNodeFromDataStructure(dataStructure: DataStructure): NodeType {
 class Grapher {
     private nodeType: NodeType;
     private dataStructure: DataStructure;
-    private nodes: Node[];    
+    private nodes: AnimationNode[];    
     private lastIndex: number = 0;
     private animator: AnimatorComponent;
     private readonly HEX_REGEX = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
     private readonly DEFAULT_HEX_COLOR = "#135589";
     private readonly SELECTED_HEX_COLOR = "#2277ee";
     private readonly COMPARED_HEX_COLOR = "#f99f48";
-
-    userInputIsAllowed: boolean = true;
 
     constructor (
         nodeType?: NodeType,
@@ -34,11 +32,10 @@ class Grapher {
         this.nodes = initialValues.map(this._newNode) || [];
     }
 
-    _newNode = (value: NodeValue): Node => {
+    _newNode = (value: NodeValue): AnimationNode => {
         return {
             id: this.lastIndex++,
             value: value,
-            mode: NodeSelectionMode.None,
             height: null,
             left: null,
             HEXColor: this.DEFAULT_HEX_COLOR
@@ -57,31 +54,28 @@ class Grapher {
         return this.nodeType;
     }
 
-    getNodes(): Node[] {
+    getNodes(): AnimationNode[] {
         return this.nodes;
     }
 
     setNodeModeSelected(index: number) {
         const node = this.nodes[index];
-        node.mode = NodeSelectionMode.Selected;
         node.HEXColor = this.SELECTED_HEX_COLOR;
     }
 
     setNodeModeCompared(index: number) {
         const node = this.nodes[index];
-        node.mode = NodeSelectionMode.Compared
         node.HEXColor = this.COMPARED_HEX_COLOR;
     }
 
     setNodeModeNone(index: number) {
         const node = this.nodes[index];
-        node.mode = NodeSelectionMode.None;
         node.HEXColor = this.DEFAULT_HEX_COLOR;
     }
 
     setNodeModeCustom(index: number, HEXColor: string) {
         // the HEXColor should be of the form  #ffffff
-        // contracted form   #fff  is also accepted.
+        // contracted form  #fff  is also accepted.
         // Notice that the hash is added if not included.
         if (!HEXColor.startsWith("#")) {
             HEXColor = "#" + HEXColor; 
@@ -90,7 +84,6 @@ class Grapher {
             printRuntimeError("HEX color not valid");
         }
         const node = this.nodes[index];
-        node.mode = NodeSelectionMode.Custom;
         node.HEXColor = HEXColor;
     }
 
@@ -228,9 +221,8 @@ class Grapher {
 
 export {
     Grapher,
-    Node,
+    AnimationNode,
     NodeType,
-    NodeSelectionMode,
     DataStructure,
     getNodeFromDataStructure
 }

@@ -5,10 +5,8 @@ export interface DisplayableCodeComment {
     comment: string
 }
 
-declare type ExecutableCode = string;
-
 export interface AnimationConfig {
-    executable: ExecutableCode,
+    executable: string,
     displayableCodeComments: DisplayableCodeComment[],
     initialValues: any[],
     nodeType: NodeType,
