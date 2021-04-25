@@ -26,13 +26,31 @@
                 margin: 0;
             }
         }
-
+        
         & > div {
-            background-color: $color1;
+            background-color: $color1;            
             margin-top: -11px;
-            padding: 10px;
+            padding: 60px;
             border-radius: 0 0 12px 12px;
+            text-align: justify;
+            
+            & > img,
+            & > .img-ctn {
+                padding: 20px;
+            }
+
+            & img.center {
+                display: block;
+                margin-right: auto;
+                margin-left: auto;
+            }
         }
+    }
+
+    & .img-ctn {
+        max-width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
     }
 
 }

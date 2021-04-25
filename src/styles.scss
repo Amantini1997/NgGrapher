@@ -147,3 +147,32 @@ input.wrong {
     background-color: $gray4;
     cursor: not-allowed;
 }
+
+img.float-l {
+    float: left;
+    margin: 20px 20px 20px 0;
+}
+
+img {
+    
+    &.xs {
+        width: 100px;
+    } 
+    
+    &.s {
+        width: 200px;
+    } 
+    
+    &.m {
+        width: 300px;
+    } 
+    
+    &.l {
+        width: 400px;
+    } 
+
+    &.xl {
+        width: 500px;
+    }
+
+}
