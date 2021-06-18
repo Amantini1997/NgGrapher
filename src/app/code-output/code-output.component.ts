@@ -1,9 +1,8 @@
 import { Options } from '@angular-slider/ngx-slider';
 import { Component, ElementRef, Input, QueryList, ViewChild, ViewChildren } from '@angular/core';
-// import { AnimatorComponent } from '../animator/animator.component';
 import { AnimationConfig } from '../interfaces/codeInterfaces';
-import { DynamicFunction, InputType, LinesSelection, REGEXES } from '../interfaces/dynamicFunctions';
-import { Grapher } from '../grapher';
+import { DynamicFunction, InputType, LinesSelection, REGEXES } from '../interfaces/dynamicFunctionsInterfaces';
+import { Grapher } from '../grapher/grapher';
 import { printRuntimeError, printSyntaxError } from '../errorGenerator';
 
 @Component({
@@ -16,7 +15,6 @@ export class CodeOutputComponent {
   @ViewChildren("codeCommentLine") codeCommentLines: QueryList<ElementRef>;
   @ViewChild("delay", {read: ElementRef}) delay: ElementRef;
 
-  // readonly GeneratorFunction = Object.getPrototypeOf(function*(){}).constructor;
   readonly value: number = 1000;
   readonly options: Options = {
       floor: 100,
@@ -43,11 +41,11 @@ export class CodeOutputComponent {
   @Input() 
   set newConfig(config: AnimationConfig) {
     if(!config) return;
+    this.config = config;
+    this.setUpAnimation();
 
     // Check syntax validity of the dynamic code 
     try {
-      this.config = config;
-      this.setUpAnimation();
       new Function("grapher", this.tryCatchCode(config.executable))(this.grapher);
     } catch(error) {
       this.config = null;
@@ -61,9 +59,14 @@ export class CodeOutputComponent {
     }
   }
 
+  clearDisplayedCode() {
+    this.currentLinesSelection = null;
+  }
+
   clearAnimation() {
     this.animationIsPaused = false;
     this.animationHasStarted = false;
+    this.currentComment = "";
     this.currentLine = null;
     this.currentGenerator = null;
     this.currentUserFunction = null;
@@ -71,13 +74,14 @@ export class CodeOutputComponent {
   }
 
   setUpAnimation() {
+    this.clearDisplayedCode();
     this.clearAnimation();
     this.buildInitialGraph();
   }
   
   startAnimation() {
     this.animationHasStarted = true;
-    this.animationInterval(this.currentGenerator);
+    this.executeGenerator(this.currentGenerator);
   }
 
   togglePause() {
@@ -99,28 +103,9 @@ export class CodeOutputComponent {
     return `try {${code}} catch(e) { grapher._printError(e) }`;
   }
 
-  // !validateUSerFunctions(userFunctions: DynamicFunction[]) {
-  //   userFunctions.forEach(func => {
-  //     if (!func.name) {
-
-  //     }
-  //     if (!from || !to) {
-  //       printSyntaxError(`
-  //       For Object
-  //       The lines to highlight must be specified");
-  //     }
-  //     if (typeof from != "number" || typeof to != "number") {
-  //       printSyntaxError("The lines to highlight must be specified as Numbers");
-  //     }
-  //     if (typeof from != "number" || typeof to != "number") {
-  //       printSyntaxError("The lines to highlight must be specified as Numbers");
-  //     }
-  //   });
-  // ?}
-
   generateUserFunctionsFromCode() {
     const executableCode = this.config.executable;
-    this.userFunctions = new Function("grapher", "type", this.tryCatchCode(executableCode))(this.grapher, InputType);
+    this.userFunctions = new Function("grapher", this.tryCatchCode(executableCode))(this.grapher);
   } 
   
   highlightLine(line: any) {
@@ -128,12 +113,15 @@ export class CodeOutputComponent {
 
     // line index in the codeComment block
     const lineNumber = this.currentLine - this.currentLinesSelection.start;
-
-    const codeCommentLine = this.codeCommentLines.toArray()[lineNumber]; 
-    this.currentComment = line?.comment ?? codeCommentLine.nativeElement.dataset.comment;
+    let codeCommentLine = this.codeCommentLines.toArray()[lineNumber]; 
+    try {
+      this.currentComment = line?.comment ?? codeCommentLine.nativeElement.dataset.comment;
+    } catch(error) {
+      throw `Line ${lineNumber} does on exist in the code-comment block`;
+    }
   }
 
-  selectUserFunction(functionIndex: number) {
+   selectUserFunction(functionIndex: number) {
     const inputs = this.getInputsForFunction(functionIndex);
     const castedParams = this.castInputValues(inputs);
     const userFunction = this.userFunctions[functionIndex];
@@ -205,7 +193,7 @@ export class CodeOutputComponent {
     return isValid;
   }
 
-  animationInterval = (generator: Generator) => {
+  executeGenerator = (generator: Generator) => {
     let waitingInterval: number;
     
     if (this.animationIsPaused) {
@@ -222,11 +210,14 @@ export class CodeOutputComponent {
       try {
         this.highlightLine(line.value);
       } catch (error) {
-        printRuntimeError(error.message)
+        printRuntimeError(error);
+        this.clearAnimation();
+        return;
       }
       waitingInterval = Number(this.delay.nativeElement.innerHTML);
     }
 
-    this.animation = setTimeout(this.animationInterval, waitingInterval, generator);
+    // store the timeout object to clear it when generator is done
+    this.animation = setTimeout(this.executeGenerator, waitingInterval, generator);
   }
 }

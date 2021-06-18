@@ -1,17 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import Accordion from 'accordion-js';
+import { Component } from '@angular/core';
 
 @Component({
   templateUrl: './instructions-page.component.html',
   styleUrls: ['./instructions-page.component.scss']
 })
-export class InstructionsPageComponent implements OnInit {
+export class InstructionsPageComponent {
 
   constructor() { }
-
-  ngOnInit() {
-    const accordions = Array.from(document.querySelectorAll('.accordion-container'));
-    new Accordion(accordions, {});
-  }
 
 }

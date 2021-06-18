@@ -8,17 +8,11 @@ interface DynamicFunction {
         }
     ],
     lines?: LinesSelection
-};
+}
 
 interface LinesSelection {
     start: number,
     end: number
-}
-
-const REGEXES = {
-    NUMERICAL_SERIES: /^[\-]{0,1}\d+(\.\d+){0,1}(\s*\,\s*[\-]{0,1}\d+(\.\d+){0,1})*\s*$/,
-    NUMERICAL: /^[\-]{0,1}\d*(\.\d+)*$/,
-    ANY: /\./
 }
 
 enum InputType {
@@ -26,6 +20,12 @@ enum InputType {
     NumberList = "numberList",
     String = "string",
     StringList = "stringList"
+}
+
+const REGEXES = {
+    NUMERICAL_SERIES: /^[\-]{0,1}\d+(\.\d+){0,1}(\s*\,\s*[\-]{0,1}\d+(\.\d+){0,1})*\s*$/,
+    NUMERICAL: /^[\-]{0,1}\d*(\.\d+)*$/,
+    ANY: /\./
 }
 
 export {

@@ -23,18 +23,6 @@ describe('AnimationPage', () => {
     fixture.detectChanges();
   });
 
-  // beforeEach( waitForAsync(() => {
-  //   TestBed.configureTestingModule({
-  //     imports: [ ],
-  //     declarations: [ AnimationPageComponent ],
-  //     providers: [  ]
-  //   }).compileComponents().then(() => {
-  //     fixture = TestBed.createComponent(AnimationPageComponent);
-  //     component = fixture.componentInstance;
-  //     element = fixture.nativeElement;
-  //   });
-  // }));
-
   describe('AnimationPageComponent', () => {
   
     it('should create', () => {
@@ -50,11 +38,6 @@ describe('AnimationPage', () => {
       component.loadTemplateConfig('queue');
       expect(component.config).toBe(component.QUEUE_TEMPLATE);
     });
-  
-    // it('loadConfig should load user code', () => {
-    //   component.loadConfig('queue');
-    //   expect(component.config).toBe(queue);
-    // });
   });
   
   

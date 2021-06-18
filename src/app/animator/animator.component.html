@@ -24,9 +24,7 @@
                  [style.--mode-color]="node.HEXColor"
                  [style.--duration]="this.duration"
                  
-                 [ngClass]="[nodeType | lowercase, 
-                             node.mode | lowercase,
-                             'node']"
+                 [ngClass]="[nodeType | lowercase, 'node']"
             >
                 <span>{{node.value}}</span>
             </div>

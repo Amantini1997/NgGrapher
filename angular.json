@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "GrapherJS": {
+    "Animalgo": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/GrapherJS",
+            "outputPath": "dist/Animalgo",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -65,18 +65,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "GrapherJS:build"
+            "browserTarget": "Animalgo:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "GrapherJS:build:production"
+              "browserTarget": "Animalgo:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "GrapherJS:build"
+            "browserTarget": "Animalgo:build"
           }
         },
         "test": {
@@ -113,16 +113,16 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "GrapherJS:serve"
+            "devServerTarget": "Animalgo:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "GrapherJS:serve:production"
+              "devServerTarget": "Animalgo:serve:production"
             }
           }
         }
       }
     }
   },
-  "defaultProject": "GrapherJS"
+  "defaultProject": "Animalgo"
 }

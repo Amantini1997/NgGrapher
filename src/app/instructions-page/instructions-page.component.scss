@@ -3,17 +3,36 @@
 :host > .accordion-container {
     padding: 0 90px;
 
-    & .ac {
+    & details[open] {
+        padding-bottom: 22px;
+    }
+
+
+    & details {
         border: none;
+        margin-top: 20px;
+
+        & > summary {
+            background-color: $color5;
+            padding: 12px;
+            color: $white;
+            outline: none;
+            border-radius: 10px;
+            width: 100%;
+            cursor: pointer;
+    
+            & > h4 {
+                display: inline-block;
+                margin: 0;
+            }
+        }
+
+        & > div {
+            background-color: $color1;
+            margin-top: -11px;
+            padding: 10px;
+            border-radius: 0 0 12px 12px;
+        }
     }
 
-    & .ac-trigger {
-        background-color: $color5;
-        color: $white;
-        outline: none;
-    }
-
-    & .ac-text {
-        background-color: $color1;
-    }
 }

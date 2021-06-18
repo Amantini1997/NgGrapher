@@ -8,28 +8,19 @@ enum DataStructure {
     BarPlot = "BarPlot"
 }
 
-enum NodeSelectionMode {
-    None = "None",
-    Selected = "Selected",
-    Compared = "Compared",
-    Custom = "Custom"
-}
-
 declare type NodeValue = number | string;
 
-interface Node {
+interface AnimationNode {
     id: number,
     value: NodeValue,
-    mode: NodeSelectionMode,    // the mode of the node which affects its colors
     height: number,             // the height of the node
-    left: number,               // the left-distance from the container
-    HEXColor: string            // the user selected Hexadecimal-like color for Custom mode
+    left: number,               // the distance from the left margin of the container
+    HEXColor: string            // the color expressed as hexadecimal value
 }
 
 export {
     NodeType,
-    Node,
+    AnimationNode,
     NodeValue,
-    NodeSelectionMode,
     DataStructure
 }
