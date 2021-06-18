@@ -165,7 +165,7 @@ export class CodeInputComponent {
     const a = document.createElement("a");
     const file = new Blob([JSON.stringify(config)], { type: "text/json" });
     a.href = URL.createObjectURL(file);
-    a.download = "grapher_animation_config.json";
+    a.download = "grapher_config.json";
     a.click();
   }
 

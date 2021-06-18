@@ -6,5 +6,8 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+<<<<<<< HEAD
   title = 'Animalgo';
+=======
+>>>>>>> d19d9ec4e12b4bdec52a756201303ebd14ecdc4a
 }

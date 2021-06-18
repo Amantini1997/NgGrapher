@@ -1,0 +1,32 @@
+in code-input.ts
+
+  indentCode(lineIndex: number, inverse: boolean =false) {
+    window.event.preventDefault();
+    let line = document.querySelector(`.line-code-${lineIndex}`) as HTMLDivElement;
+    if(inverse) {
+      if(line.innerHTML.startsWith(this.INDENT)) {
+        line.innerHTML = line.innerHTML.replace(this.INDENT, "");
+      }
+    } else {
+      line.innerHTML = this.INDENT + line.innerHTML;
+      this.moveCaret(this.INDENT.length, line);
+    }
+  }
+  
+  moveCaret(positionShift: number, line: HTMLDivElement) {    
+    const range = document.createRange();
+    const sel = window.getSelection();
+    const offset = sel.focusOffset;
+    range.setStart(line, offset + positionShift);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+in code-input.html
+
+    <div class="line-code-{{lineIndex}}" contenteditable
+    ...
+        (keydown.tab)="indentCode(lineIndex)"
+        (keydown.shift.tab)="indentCode(lineIndex, true)"
+    ...>
