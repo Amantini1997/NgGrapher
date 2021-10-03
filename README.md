@@ -12,8 +12,8 @@ So far, it only allows array-like data structures and algorithms than can be mod
 
 Before running the software the first time it is necessary to call `npm install`.
 
-To run the software it is necessary to call `npm start` and then navigate to `http://localhost:4200/`. 
-=======
+To start the software, run `npm start` and then navigate to `http://localhost:4200/`. 
+
 However, the project is still active and more data structures are in progress.
 
 To access the website [click here](https://amantini1997.github.io/GrapherJS)
